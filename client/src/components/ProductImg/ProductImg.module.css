@@ -1,0 +1,37 @@
+.productImg {
+    position: relative;
+    flex: 1;
+    height: 60vh;
+}
+
+.picBox {
+    display: flex;
+}
+
+.picBox img {
+    width: 100%;
+    height: 60vh;
+    object-fit: cover;
+}
+
+.minipicBox {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* margin-top: 50vh; */
+    height: 10vh;
+    /* width: 100%; */
+    background-color: rgba(255, 255, 255, .2);
+    padding: 0.5vh;
+}
+
+.minipicBox img {
+    height: 100%;
+    width: 10vh;
+    margin-left: 0.5vh;
+    cursor: pointer;
+}

@@ -1,0 +1,59 @@
+.productsrc {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+}
+
+.productsrc h1 {
+    font-size: 30px;
+}
+
+.price {
+    font-size: 30px;
+    color: rgb(209, 179, 14);
+    font-weight: 500;
+}
+
+p {
+    font-size: 18px;
+    font-weight: 300;
+    text-align: justify;
+}
+
+.nums {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nums button {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+
+.goStep {
+    display: flex;
+    gap: 20px;
+    height: 10vh;
+}
+
+.goCart,
+.goBuy {
+    flex: 1;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.goCart:hover,
+.goBuy:hover {
+    border: 1px solid rgb(209, 179, 14);
+    background-color: rgb(237, 226, 162);
+}

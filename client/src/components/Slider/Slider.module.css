@@ -1,0 +1,46 @@
+.slider {
+    height: calc(100vh - 80px);
+    width: 100vw;
+    /* overflow: hidden; */
+    position: relative;
+}
+
+.container {
+    width: 200vw;
+    height: 100%;
+    display: flex;
+    transition: all 1s ease;
+    /* transform: translateX(-50%); */
+}
+
+img {
+    height: 100%;
+    width: 100vw;
+    object-fit: cover;
+}
+
+.icons {
+    width: 300px;
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    bottom: 100px;
+    color: rgba(255, 255, 255, .5)
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.icon:hover {
+    border: 1px solid rgba(255, 255, 255, .7);
+}

@@ -1,0 +1,38 @@
+.products {
+    margin-top: 80px;
+    padding: 30px 50px;
+    display: flex;
+}
+
+.left {
+    width: 270px;
+    position: sticky;
+    height: 100%;
+    top: 50px;
+    border-right: 1px solid rgb(203, 202, 202);
+}
+
+.right {
+    flex: 1;
+}
+
+.filter {
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+.filterInput {
+    margin-bottom: 10px;
+}
+
+label {
+    margin-left: 10px;
+}
+
+.space {
+    margin-right: 20px;
+}
