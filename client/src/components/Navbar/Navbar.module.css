@@ -16,6 +16,13 @@
 
 .center {
     font-size: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.center svg {
+    color: skyblue;
 }
 
 .left,

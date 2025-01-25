@@ -6,57 +6,55 @@ const Categories = () => {
     return (
         <div className={classes.categories}>
             <div className={classes.col}>
-                <div className={classes.row}>
+                <div className={classes.rowfirst}>
                     <Link to="/">
-                        <div className={classes.tag}>Clothes</div>
+                        <div className={classes.tag}>Findi</div>
                         <img src='/img/shoes.jpg'></img>
                     </Link>
-
                 </div>
-                <div className={classes.row}>
-                    <Link to="/">
-                        <div className={classes.tag}>Trousers</div>
-                        <img src='/img/shoes.jpg'></img>
-                    </Link>
-
+                <div className={classes.rowsecond}>
+                    <div className={classes.col}>
+                        <div className={classes.rowfirst}>
+                            <Link to="/">
+                                <div className={classes.tag}>报喜鸟</div>
+                                <img src='/img/shoes.jpg'></img>
+                            </Link>
+                        </div>
+                    </div>
+                    <div className={classes.col}>
+                        <div className={classes.rowfirst}>
+                            <Link to="/">
+                                <div className={classes.tag}>老庙</div>
+                                <img src='/img/shoes.jpg'></img>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div className={classes.col}>
-                <div className={classes.row}>
+                <div className={classes.rowfirst}>
                     <Link to="/">
-                        <div className={classes.tag}>shoes</div>
+                        <div className={classes.tag}>BELLE</div>
                         <img src='/img/shoes.jpg'></img>
                     </Link>
-
                 </div>
-            </div>
-            <div className={classes.colLarge}>
-                <div className={classes.row}>
+                <div className={classes.rowsecond}>
                     <div className={classes.col}>
-                        <div className={classes.row}>
+                        <div className={classes.rowfirst}>
                             <Link to="/">
-                                <div className={classes.tag}>Undergarments</div>
+                                <div className={classes.tag}>传祺</div>
                                 <img src='/img/shoes.jpg'></img>
                             </Link>
-
                         </div>
                     </div>
                     <div className={classes.col}>
-                        <div className={classes.row}>
+                        <div className={classes.rowfirst}>
                             <Link to="/">
-                                <div className={classes.tag}>Fittings</div>
+                                <div className={classes.tag}>BELLE</div>
                                 <img src='/img/shoes.jpg'></img>
                             </Link>
-
                         </div>
                     </div>
-                </div>
-                <div className={classes.row}>
-                    <Link to="/">
-                        <div className={classes.tag}>Sports</div>
-                        <img src='/img/shoes.jpg'></img>
-                    </Link>
-
                 </div>
             </div>
         </div>

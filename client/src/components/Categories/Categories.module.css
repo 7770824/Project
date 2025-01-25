@@ -1,6 +1,6 @@
 .categories {
     display: flex;
-    height: 120vh;
+    height: 160vh;
     gap: 10px;
     margin: 10px;
 }
@@ -13,19 +13,24 @@
 
 }
 
-.colLarge {
+/* .colLarge {
     flex: 2;
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
+} */
 
 
-.row {
-    flex: 1;
+.rowfirst,
+.rowsecond {
+    flex: 2;
     display: flex;
     gap: 10px;
     position: relative;
+}
+
+.rowsecond {
+    flex: 1;
 }
 
 .tag {

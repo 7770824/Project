@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCartShopping, faChevronDown, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
-import { faHeart, faUser } from '@fortawesome/free-regular-svg-icons'
+import { faCartShopping, faChevronDown, faCloud, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
+import { faUser } from '@fortawesome/free-regular-svg-icons'
 import classes from "./Navbar.module.css"
 import { Link } from 'react-router-dom'
 import Cart from '../Cart/Cart'
@@ -19,36 +19,35 @@ const Navbar = () => {
                         CN
                         <FontAwesomeIcon icon={faChevronDown} />
                     </div>
+                    <hr />
                     <div>
-                        <Link to="/products/1">Women</Link>
+                        <Link to="/products/1">服饰</Link>
                     </div>
+                    <hr />
                     <div>
-                        <Link to="/products/2">Men</Link>
+                        <Link to="/products/2">日用</Link>
                     </div>
+                    <hr />
                     <div>
-                        <Link to="/products/3">Children</Link>
+                        <Link to="/products/3">食品</Link>
                     </div>
                 </div>
                 <div className={classes.center}>
-                    <Link to="/">LAMASTORE</Link>
+                    <Link to="/">CLOUD</Link>
+                    <FontAwesomeIcon icon={faCloud} />
                 </div>
                 <div className={classes.right}>
                     <div>
-                        <Link to="/">Homepage</Link>
+                        <Link to="/">首页</Link>
                     </div>
+                    <hr />
                     <div>
-                        <Link to="/">About</Link>
+                        <Link to="/products">ALL</Link>
                     </div>
-                    <div>
-                        <Link to="/">Contact</Link>
-                    </div>
-                    <div>
-                        <Link to="/">Stores</Link>
-                    </div>
+                    <hr />
                     <div className={classes.icons}>
-                        <FontAwesomeIcon icon={faMagnifyingGlass} />
-                        <FontAwesomeIcon icon={faUser} />
-                        <FontAwesomeIcon icon={faHeart} />
+                        <FontAwesomeIcon icon={faMagnifyingGlass} /><hr />
+                        <FontAwesomeIcon icon={faUser} /><hr />
                         <div className={classes.cartIcon} onClick={() => setopen(!open)}>
                             <FontAwesomeIcon icon={faCartShopping} />
                             <span>1</span>
@@ -57,7 +56,7 @@ const Navbar = () => {
                 </div>
             </div>
             {open && <Cart />}
-        </div>
+        </div >
     )
 }
 
