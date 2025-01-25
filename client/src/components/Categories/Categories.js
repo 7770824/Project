@@ -9,7 +9,7 @@ const Categories = () => {
                 <div className={classes.rowfirst}>
                     <Link to="/">
                         <div className={classes.tag}>Findi</div>
-                        <img src='/img/shoes.jpg'></img>
+                        <img src='/dataImg/Fendi/3/2.jpg'></img>
                     </Link>
                 </div>
                 <div className={classes.rowsecond}>
@@ -17,7 +17,7 @@ const Categories = () => {
                         <div className={classes.rowfirst}>
                             <Link to="/">
                                 <div className={classes.tag}>报喜鸟</div>
-                                <img src='/img/shoes.jpg'></img>
+                                <img src='/dataImg/bird/3.jpg'></img>
                             </Link>
                         </div>
                     </div>
@@ -25,7 +25,7 @@ const Categories = () => {
                         <div className={classes.rowfirst}>
                             <Link to="/">
                                 <div className={classes.tag}>老庙</div>
-                                <img src='/img/shoes.jpg'></img>
+                                <img src='/dataImg/laomiao/1/2.jpg'></img>
                             </Link>
                         </div>
                     </div>
@@ -34,8 +34,8 @@ const Categories = () => {
             <div className={classes.col}>
                 <div className={classes.rowfirst}>
                     <Link to="/">
-                        <div className={classes.tag}>BELLE</div>
-                        <img src='/img/shoes.jpg'></img>
+                        <div className={classes.tag}>IWC</div>
+                        <img src='/dataImg/IWC/2/1.jpg'></img>
                     </Link>
                 </div>
                 <div className={classes.rowsecond}>
@@ -43,7 +43,7 @@ const Categories = () => {
                         <div className={classes.rowfirst}>
                             <Link to="/">
                                 <div className={classes.tag}>传祺</div>
-                                <img src='/img/shoes.jpg'></img>
+                                <img src='/dataImg/chuanqi/2.jpg'></img>
                             </Link>
                         </div>
                     </div>
@@ -51,7 +51,7 @@ const Categories = () => {
                         <div className={classes.rowfirst}>
                             <Link to="/">
                                 <div className={classes.tag}>BELLE</div>
-                                <img src='/img/shoes.jpg'></img>
+                                <img src='/dataImg/BELLE/3.jpg'></img>
                             </Link>
                         </div>
                     </div>
