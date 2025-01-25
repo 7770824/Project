@@ -6,7 +6,8 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
 const FeaturedProducts = (props) => {
-    const data = [];
+    const data = props.data;
+    // console.log(data)
     return (
         <div className={classes.featuredProducts}>
             <div className={classes.top}>
@@ -21,9 +22,11 @@ const FeaturedProducts = (props) => {
 
             </div>
             <div className={classes.products}>
-                {data.map(item => {
-                    <Card item={item} key={item.id} />
-                })}
+                {data.filter(item => item.Symbol === props.type)
+                    .slice(0, 5)
+                    .map(item => (
+                        <Card item={item} key={item.id} type={props.type} />
+                    ))}
             </div>
         </div>
     );

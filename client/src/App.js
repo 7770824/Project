@@ -43,24 +43,19 @@ const router = createBrowserRouter([
 ])
 
 const App = () => {
-    const [data, setdata] = useState(null)
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/data');
-                const result = await response.json();
-                setdata(result);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-        fetchData();
-    }, []);
-    useEffect(() => {
-        if (data) {
-            console.log(data);
-        }
-    }, [data]);
+    // const [data, setdata] = useState(null)
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const response = await fetch('http://localhost:5000/api/data');
+    //             const result = await response.json();
+    //             setdata(result);
+    //         } catch (error) {
+    //             console.error("Error fetching data:", error);
+    //         }
+    //     };
+    //     fetchData();
+    // }, []);
     return (
 
         <div>

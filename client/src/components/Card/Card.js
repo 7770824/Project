@@ -1,19 +1,19 @@
 import React from 'react'
-import classes from './Card.css'
+import classes from './Card.module.css'
 import { Link } from 'react-router-dom'
 
-const Card = (props) => {
+const Card = ({ item, type }) => {
     return (
-        <Link to={`/product/${props.key}`}>
-            <div>
+        <Link to={`/product/${item.id}`}>
+            <div className={classes.card}>
                 <div className={classes.image}>
-                    {props.item.isNew && <span>New Season</span>}
-                    <img src={props.item.img} alt='' />
+                    {/* {props.item.isNew && <span>New Season</span>} */}
+                    <img src={item.img1} alt='' />
                 </div>
-                <h2>{props.item.title}</h2>
+                <h2>{item.name}</h2>
                 <div className={classes.prices}>
-                    <h3>${props.item.oldprice}</h3>
-                    <h3>${props.item.newprice}</h3>
+                    <h3>￥{item.oldprice}</h3>
+                    <h3>{item.newprice}</h3>
                 </div>
             </div>
         </Link>
