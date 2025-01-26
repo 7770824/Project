@@ -1,7 +1,17 @@
 .products {
     margin-top: 80px;
     padding: 30px 50px;
+}
+
+.main {
     display: flex;
+}
+
+.search {
+    /* height: 80px; */
+    background-color: rgb(196, 226, 238);
+    display: flex;
+    justify-content: center;
 }
 
 .left {

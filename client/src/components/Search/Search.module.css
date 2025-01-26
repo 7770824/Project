@@ -1,0 +1,22 @@
+.search {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    font-size: 20px;
+    position: relative;
+}
+
+.searchText {
+    height: 30px;
+    line-height: 30px;
+    font-size: 17px;
+    width: 500px;
+    border: 2px solid rgb(196, 226, 238);
+    outline: none;
+}
+
+.icon {
+    position: absolute;
+    right: 5px;
+    color: gray;
+}
