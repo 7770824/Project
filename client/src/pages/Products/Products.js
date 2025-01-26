@@ -34,16 +34,36 @@ const Products = () => {
         });
     };
     useEffect(() => {
-        if (type) {
-            handleFilterChange('Symbol', type, true);
-        }
-        if (kinds) {
-            handleFilterChange('kinds', kinds, true)
-        }
-        if (title) {
-            handleFilterChange('categories', title, true)
-        }
-    }, [type, kinds]);
+        //     if (type) {
+        //         handleFilterChange('Symbol', type, true);
+        //     }
+        //     if (kinds) {
+        //         handleFilterChange('kinds', kinds, true)
+        //     }
+        //     if (title) {
+        //         handleFilterChange('categories', title, true)
+        //     }
+        // }, [searchParams]);
+
+        // 重置过滤器状态
+        setSelectedFilters(prev => ({
+            ...prev,
+            kinds: kinds || '',
+            Symbol: type || '',
+            categories: [title] || [] // 重置其他过滤条件
+        }));
+
+        return () => {
+            // 清理函数
+            setSelectedFilters({
+                categories: [],
+                kinds: '',
+                priceRange: 2000,
+                sortBy: 'normal',
+                Symbol: ''
+            });
+        };
+    }, [searchParams]); // 使用 searchParams 作为依赖项
 
     return (
         <div className={classes.products}>
