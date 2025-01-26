@@ -13,7 +13,7 @@ const FeaturedProducts = (props) => {
             <div className={classes.top}>
                 <h1>{props.type} products</h1>
                 <div>
-                    <Link to="/products">
+                    <Link to={`/products?type=${props.type}`}>
                         More
                         <FontAwesomeIcon icon={faChevronRight} />
                     </Link>

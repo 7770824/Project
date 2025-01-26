@@ -1,14 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import classes from './Products.module.css'
 import ProductsList from '../../components/ProductsList/ProductsList';
+import { useSearchParams } from 'react-router-dom';
 const Products = () => {
     const [maxPrice, setmaxPrice] = useState(2000);
     const [sort, setsort] = useState('normal');
+    const [searchParams] = useSearchParams();
     const [selectedFilters, setSelectedFilters] = useState({
         categories: [],       // 商品
+        kinds: '',
         priceRange: 2000,    // 价格范围
-        sortBy: 'normal'     // 排序方式
+        sortBy: 'normal',     // 排序方式
+        Symbol: ''
     });
+    const type = searchParams.get('type')
+    const kinds = searchParams.get('kinds')
+    const title = searchParams.get('title')
 
     const handleFilterChange = (filterType, value, checked) => {
         setSelectedFilters(prev => {
@@ -26,6 +33,17 @@ const Products = () => {
             };
         });
     };
+    useEffect(() => {
+        if (type) {
+            handleFilterChange('Symbol', type, true);
+        }
+        if (kinds) {
+            handleFilterChange('kinds', kinds, true)
+        }
+        if (title) {
+            handleFilterChange('categories', title, true)
+        }
+    }, [type, kinds]);
 
     return (
         <div className={classes.products}>

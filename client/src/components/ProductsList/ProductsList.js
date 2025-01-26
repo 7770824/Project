@@ -13,15 +13,13 @@ const ProductsList = ({ filters }) => {
         };
         fetchData();
     }, []);
-    console.log(data)
-    console.log(filters)
     const filteredData = useMemo(() => {
         if (!data) return [];
 
         return data.filter(item => {
             if (!item.name.includes(filters.categories) && !item.kinds.includes(filters.categories)) return false;
-            // if (filters.categories.length && !filters.categories.includes(item.category)) return false;
-            if (item.newprice > filters.priceRange) return false;
+            if (filters.Symbol.length && item.Symbol !== filters.Symbol) return false;
+            if (filters.kinds.length && item.kinds !== filters.kinds) return false; if (item.newprice > filters.priceRange) return false;
             return true;
         });
     }, [data, filters]);

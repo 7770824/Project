@@ -21,15 +21,15 @@ const Navbar = () => {
                     </div>
                     <hr />
                     <div>
-                        <Link to="/products/1">服饰</Link>
+                        <Link to="/products/?kinds=服饰">服饰</Link>
                     </div>
                     <hr />
                     <div>
-                        <Link to="/products/2">日用</Link>
+                        <Link to="/products/?kinds=日用">日用</Link>
                     </div>
                     <hr />
                     <div>
-                        <Link to="/products/3">食品</Link>
+                        <Link to="/products/?kinds=食品">食品</Link>
                     </div>
                 </div>
                 <div className={classes.center}>
