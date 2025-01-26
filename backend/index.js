@@ -94,8 +94,8 @@ const data = [
     {
         name: "FENDI 2025春节限定系列",
         id: 9,
-        img1: "http://localhost:5000/dataImg/Findi/2/1.jpg",
-        img2: "http://localhost:5000/dataImg/Findi/2/2.jpg",
+        img1: "http://localhost:5000/dataImg/Fendi/2/1.jpg",
+        img2: "http://localhost:5000/dataImg/Fendi/2/2.jpg",
         oldprice: 679,
         newprice: 599,
         Symbol: "Featured",
@@ -104,8 +104,8 @@ const data = [
     {
         name: "FENDI 2025春夏男士系列",
         id: 10,
-        img1: "http://localhost:5000/dataImg/Findi/3/1.jpg",
-        img2: "http://localhost:5000/dataImg/Findi/3/2.jpg",
+        img1: "http://localhost:5000/dataImg/Fendi/3/1.jpg",
+        img2: "http://localhost:5000/dataImg/Fendi/3/2.jpg",
         oldprice: 1299,
         newprice: 1199,
         Symbol: "Featured",
