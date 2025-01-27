@@ -1,6 +1,12 @@
 const express = require("express")
 const app = express()
 const path = require('path')
+const fs = require('fs');
+
+const cartFilePath = path.join(__dirname, 'cart.json');
+const writeCart = (cart) => {
+    fs.writeFileSync(cartFilePath, JSON.stringify(cart, null, 2));
+};
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -183,8 +189,34 @@ const data = [
     }
 ]
 
+app.use(express.json());
+
+app.post('/api/cart/add', (req, res) => {
+    const { id, nums } = req.body;
+    const product = data.find(item => item.id === parseInt(id));
+    const cartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.newprice,
+        nums: nums,
+        img: product.img1
+    };
+    const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'))
+    if (cart.findIndex(item => item.id === id) !== -1) {
+        const product = cart.findIndex(item => item.id === id);
+        cart[product].nums += nums;
+    } else cart.push(cartItem);
+    writeCart(cart);
+    res.json({ message: '添加成功！' });
+});
+
 app.get('/api/data', (req, res) => {
     res.json(data);
+});
+app.get('/api/data/product/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const product = data.find(item => item.id === id);
+    res.json(product);
 });
 app.listen(5000, () => {
     console.log(111);
