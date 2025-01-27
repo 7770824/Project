@@ -14,9 +14,7 @@ const Products = () => {
         sortBy: 'normal',     // 排序方式
         Symbol: ''
     });
-    const type = searchParams.get('type')
-    const kinds = searchParams.get('kinds')
-    const title = searchParams.get('title')
+
 
     const handleFilterChange = (filterType, value, checked) => {
         setSelectedFilters(prev => {
@@ -46,12 +44,16 @@ const Products = () => {
         //     }
         // }, [searchParams]);
 
+        const type = searchParams.get('type')
+        const kinds = searchParams.get('kinds')
+        const title = searchParams.get('title')
+        if (!type && !kinds && !title) return
         // 重置过滤器状态
         setSelectedFilters(prev => ({
             ...prev,
             kinds: kinds || '',
             Symbol: type || '',
-            categories: [title] || [] // 重置其他过滤条件
+            categories: title ? title : [] // 重置其他过滤条件
         }));
 
         return () => {
