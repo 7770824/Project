@@ -4,8 +4,6 @@ import ProductsList from '../../components/ProductsList/ProductsList';
 import { useSearchParams } from 'react-router-dom';
 import Search from '../../components/Search/Search';
 const Products = () => {
-    const [maxPrice, setmaxPrice] = useState(2000);
-    const [sort, setsort] = useState('normal');
     const [searchParams] = useSearchParams();
     const [selectedFilters, setSelectedFilters] = useState({
         categories: [],       // 商品
@@ -110,11 +108,10 @@ const Products = () => {
                         <h2>价格区间</h2>
                         <div className={classes.filterInput}>
                             <span>0</span>
-                            <input type='range' min={0} max={2000} value={maxPrice} onChange={e => {
+                            <input type='range' min={0} max={2000} value={selectedFilters.priceRange} onChange={e => {
                                 handleFilterChange('priceRange', e.target.value)
-                                setmaxPrice(e.target.value)
                             }} />
-                            <span>{maxPrice}</span>
+                            <span>{selectedFilters.priceRange}</span>
                         </div>
                     </div>
                     <div className={classes.filter}>
@@ -126,9 +123,8 @@ const Products = () => {
                             name='sort'
                             onChange={e => {
                                 handleFilterChange('sortBy', e.target.value)
-                                setsort(e.target.value)
                             }}
-                            checked={sort === 'normal'}
+                            checked={selectedFilters.sortBy === 'normal'}
                         />
                         <label htmlFor='normal' className={classes.space}>综合</label>
                         <input
@@ -138,9 +134,8 @@ const Products = () => {
                             name='sort'
                             onChange={e => {
                                 handleFilterChange('sortBy', e.target.value)
-                                setsort(e.target.value)
                             }}
-                            checked={sort === 'minfirst'}
+                            checked={selectedFilters.sortBy === 'minfirst'}
                         />
                         <label htmlFor='minfirst'>价格从低到高</label>
                     </div>
