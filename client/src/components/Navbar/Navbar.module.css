@@ -50,18 +50,3 @@
     position: relative;
     width: 35px;
 }
-
-.cartIcon span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: red;
-    color: white;
-    position: absolute;
-    top: 0px;
-    right: 3px;
-}

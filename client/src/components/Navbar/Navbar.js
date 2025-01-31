@@ -49,7 +49,6 @@ const Navbar = () => {
                         <FontAwesomeIcon icon={faUser} /><hr />
                         <div className={classes.cartIcon} onClick={() => setopen(!open)}>
                             <FontAwesomeIcon icon={faCartShopping} />
-                            <span>1</span>
                         </div>
                     </div>
                 </div>

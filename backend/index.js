@@ -2,6 +2,7 @@ const express = require("express")
 const app = express()
 const path = require('path')
 const fs = require('fs');
+const { json } = require("stream/consumers");
 
 const cartFilePath = path.join(__dirname, 'cart.json');
 const writeCart = (cart) => {
@@ -11,6 +12,10 @@ const writeCart = (cart) => {
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
     next();
 });
 // 配置静态文件服务
@@ -207,8 +212,21 @@ app.post('/api/cart/add', (req, res) => {
         cart[product].nums += nums;
     } else cart.push(cartItem);
     writeCart(cart);
-    res.json({ message: '添加成功！' });
+    res.json({ message: '添加成功！', length: cart.length });
 });
+app.post('/api/cartNumsChange', (req, res) => {
+    const { id, nums } = req.body;
+    const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'))
+    if (nums === 0) cart.pop(cart.find(item => item.id === id))
+    else cart.find(item => item.id === id).nums = nums
+    writeCart(cart);
+    res.json('修改成功')
+})
+
+app.get('/api/cart/read', (req, res) => {
+    const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'));
+    res.json(cart);
+})
 
 app.get('/api/data', (req, res) => {
     res.json(data);

@@ -25,7 +25,7 @@ const FeaturedProducts = (props) => {
                 {data.filter(item => item.Symbol === props.type)
                     .slice(0, 5)
                     .map(item => (
-                        <Card item={item} key={item.id} type={props.type} />
+                        <Card item={item} key={item.id} />
                     ))}
             </div>
         </div>
