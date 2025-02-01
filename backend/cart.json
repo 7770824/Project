@@ -1,51 +1,9 @@
 [
   {
-    "id": 1,
-    "name": "BELLE百丽小白鞋",
-    "price": 199,
-    "nums": 2,
-    "img": "http://localhost:5000/dataImg/BELLE/1/1.jpg"
-  },
-  {
-    "id": 6,
-    "name": "德佑湿厕纸80抽*3",
-    "price": 19,
-    "nums": 3,
-    "img": "http://localhost:5000/dataImg/daily/deyou/1.png"
-  },
-  {
-    "id": 11,
-    "name": "脆升升15g*20",
-    "price": 28.8,
-    "nums": 1,
-    "img": "http://localhost:5000/dataImg/food/cuishengsheng/1.png"
-  },
-  {
-    "id": 7,
-    "name": "EKO",
-    "price": 359,
-    "nums": 1,
-    "img": "http://localhost:5000/dataImg/daily/eko/1.png"
-  },
-  {
-    "id": 2,
-    "name": "BELLE百丽跑道系列休闲鞋",
-    "price": 299,
-    "nums": 1,
-    "img": "http://localhost:5000/dataImg/BELLE/2/1.jpg"
-  },
-  {
     "id": 3,
     "name": "报喜鸟休闲条纹衬衫",
     "price": 279,
-    "nums": 1,
+    "nums": 3,
     "img": "http://localhost:5000/dataImg/bird/1/1.png"
-  },
-  {
-    "id": 4,
-    "name": "报喜鸟防风防水夹克外套",
-    "price": 579,
-    "nums": 1,
-    "img": "http://localhost:5000/dataImg/bird/2/1.png"
   }
 ]

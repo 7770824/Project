@@ -6,9 +6,6 @@ import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons
 const Slider = () => {
 
     const [currentSlide, setCurrentSlide] = useState(0);
-    const data = [
-
-    ];
     const prevSlide = () => {
         setCurrentSlide(currentSlide === 0 ? 1 : (prev) => prev - 1)
     };
