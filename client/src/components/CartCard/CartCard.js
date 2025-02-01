@@ -34,7 +34,7 @@ const reducer = (state, action) => {
     }
 };
 
-const CartCard = ({ item }) => {
+const CartCard = ({ item, onNumsChange }) => {
     const [state, dispatch] = useReducer(reducer, {
         ...initialState,
         nums: item.nums
@@ -54,11 +54,13 @@ const CartCard = ({ item }) => {
 
     const minusHandler = async () => {
         dispatch({ type: ACTIONS.DECREMENT });
+        onNumsChange(item.id, state.nums - 1);
         await updateCart(state.nums - 1);
     };
 
     const addHandler = async () => {
         dispatch({ type: ACTIONS.INCREMENT });
+        onNumsChange(item.id, state.nums - 1);
         await updateCart(state.nums + 1);
     };
 

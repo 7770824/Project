@@ -6,6 +6,13 @@ import { faWallet } from '@fortawesome/free-solid-svg-icons';
 
 const Cart = () => {
     const [data, setData] = useState(null);
+    const updateItemNums = (id, newNums) => {
+        setData(prevData =>
+            prevData.map(item =>
+                item.id === id ? { ...item, nums: newNums } : item
+            )
+        );
+    };
     // 依赖数组[]说明:
     // 空数组表示只在组件首次渲染时执行
     // 不会在后续更新时重复执行
@@ -29,19 +36,23 @@ const Cart = () => {
     }, []);
     if (data) {
         let sum = 0;
-        data.forEach(item => sum += item.price)
+        data.forEach(item => sum += item.price * item.nums)
         return (
             <div className={classes.cart}>
                 <h1>购物车</h1>
                 <div className={classes.cartItems}>
                     {data.map(item => (
-                        <CartCard item={item} />
+                        <CartCard
+                            item={item}
+                            key={item.id}
+                            onNumsChange={updateItemNums}
+                        />
                     ))}
                 </div>
 
                 <hr />
 
-                {data.length !== 0 &&
+                {(data.length !== 0 && data.some(item => item.nums !== 0)) &&
                     <div className={classes.bottom}>
                         <h2>总价: ￥{sum}</h2>
                         <hr />
