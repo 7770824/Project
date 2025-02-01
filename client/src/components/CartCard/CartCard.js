@@ -2,11 +2,15 @@ import React, { useState } from 'react'
 import classes from './CartCard.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
-const CartCard = ({ item }) => {
-    const [showChange, setShowChange] = useState(false)
-    const [nums, setNums] = useState(item.nums)
+
+const CartCard = ({ item, onNumsChange }) => {
+    const [showChange, setShowChange] = useState(false);
+    const [nums, setNums] = useState(item.nums);
+
     const minusHandler = async () => {
-        setNums(prev => prev - 1)
+        const newNums = nums - 1 > 0 ? nums - 1 : 0;
+        setNums(newNums);
+        onNumsChange(item.id, newNums);
         try {
             const response = await fetch('http://localhost:5000/api/cartNumsChange', {
                 method: 'POST',
@@ -15,15 +19,18 @@ const CartCard = ({ item }) => {
                 },
                 body: JSON.stringify({
                     id: item.id,
-                    nums: nums - 1 > 0 ? nums - 1 : 0
+                    nums: newNums
                 })
             })
         } catch (error) {
             console.error('操作失败')
         }
-    }
+    };
+
     const addHandler = async () => {
-        setNums(prev => prev + 1)
+        const newNums = nums + 1;
+        setNums(newNums);
+        onNumsChange(item.id, newNums);
         try {
             const response = await fetch('http://localhost:5000/api/cartNumsChange', {
                 method: 'POST',
@@ -32,13 +39,14 @@ const CartCard = ({ item }) => {
                 },
                 body: JSON.stringify({
                     id: item.id,
-                    nums: nums + 1
+                    nums: newNums
                 })
             })
         } catch (error) {
             console.error('操作失败')
         }
-    }
+    };
+
     if (nums > 0) return (
         <div className={classes.cartcard} onClick={() => setShowChange(false)}>
             <div className={classes.cartimg}>

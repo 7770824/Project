@@ -7,6 +7,14 @@ import { faWallet } from '@fortawesome/free-solid-svg-icons';
 const Cart = () => {
     const [data, setData] = useState(null);
 
+    const updateItemNums = (id, newNums) => {
+        setData(prevData =>
+            prevData.map(item =>
+                item.id === id ? { ...item, nums: newNums } : item
+            )
+        );
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             const response = await fetch('http://localhost:5000/api/cart/read');
@@ -17,13 +25,17 @@ const Cart = () => {
     }, []);
     if (data) {
         let sum = 0;
-        data.forEach(item => sum += item.price)
+        data.forEach(item => sum += item.price * item.nums)
         return (
             <div className={classes.cart}>
                 <h1>购物车</h1>
                 <div className={classes.cartItems}>
                     {data.map(item => (
-                        <CartCard item={item} />
+                        <CartCard
+                            key={item.id}
+                            item={item}
+                            onNumsChange={updateItemNums}
+                        />
                     ))}
                 </div>
 
