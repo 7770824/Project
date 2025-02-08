@@ -2,21 +2,14 @@ import React, { useState } from 'react'
 import classes from './ProductSrc.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartPlus, faMinus, faPlus, faWallet } from '@fortawesome/free-solid-svg-icons';
+import { useAddCartMutation } from '../../store/cartApi';
 
 const ProductSrc = ({ data }) => {
     const [nums, setnums] = useState(1);
+    const [addCart] = useAddCartMutation();
     const addToCartHandler = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: data.id,
-                    nums: nums
-                })
-            });
+            await addCart({ id: data.id, nums: nums });
         } catch (error) {
             console.error('添加失败！');
         }

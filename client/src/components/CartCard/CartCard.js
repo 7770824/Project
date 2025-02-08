@@ -1,72 +1,33 @@
-import React, { useReducer } from 'react'
+import React, { useState } from 'react'
 import classes from './CartCard.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { useChangeCartMutation } from '../../store/cartApi'
 
-const ACTIONS = {
-    SHOW_CONTROLS: 'SHOW_CONTROLS',
-    HIDE_CONTROLS: 'HIDE_CONTROLS',
-    INCREMENT: 'INCREMENT',
-    DECREMENT: 'DECREMENT',
-    SET_ERROR: 'SET_ERROR'
-};
+const CartCard = ({ item }) => {
+    const [showChange, setShowChange] = useState(false);
+    const [changeCart] = useChangeCartMutation();
 
-const initialState = {
-    showChange: false,
-    nums: 0,
-    error: null
-};
-
-const reducer = (state, action) => {
-    switch (action.type) {
-        case ACTIONS.SHOW_CONTROLS:
-            return { ...state, showChange: true };
-        case ACTIONS.HIDE_CONTROLS:
-            return { ...state, showChange: false };
-        case ACTIONS.INCREMENT:
-            return { ...state, nums: state.nums + 1 };
-        case ACTIONS.DECREMENT:
-            return { ...state, nums: Math.max(0, state.nums - 1) };
-        case ACTIONS.SET_ERROR:
-            return { ...state, error: action.payload };
-        default:
-            return state;
-    }
-};
-
-const CartCard = ({ item, onNumsChange }) => {
-    const [state, dispatch] = useReducer(reducer, {
-        ...initialState,
-        nums: item.nums
-    });
-
-    const updateCart = async (newNums) => {
+    const minusHandler = async () => {
+        // e.stopPropagation();
         try {
-            await fetch('http://localhost:5000/api/cartNumsChange', {
-                method: 'POST',
-                headers: { 'content-Type': 'application/json' },
-                body: JSON.stringify({ id: item.id, nums: newNums })
-            });
+            await changeCart({ id: item.id, nums: item.nums - 1 });
         } catch (error) {
-            dispatch({ type: ACTIONS.SET_ERROR, payload: '操作失败' });
+            console.error('操作失败');
         }
     };
 
-    const minusHandler = async () => {
-        dispatch({ type: ACTIONS.DECREMENT });
-        onNumsChange(item.id, state.nums - 1);
-        await updateCart(state.nums - 1);
-    };
-
     const addHandler = async () => {
-        dispatch({ type: ACTIONS.INCREMENT });
-        onNumsChange(item.id, state.nums - 1);
-        await updateCart(state.nums + 1);
+        // e.stopPropagation();
+        try {
+            await changeCart({ id: item.id, nums: item.nums + 1 });
+        } catch (error) {
+            console.error('操作失败');
+        }
     };
 
-    if (state.nums > 0) return (
-        <div className={classes.cartcard}
-            onClick={() => dispatch({ type: ACTIONS.HIDE_CONTROLS })}>
+    if (item.nums > 0) return (
+        <div className={classes.cartcard} onClick={() => setShowChange(false)}>
             <div className={classes.cartimg}>
                 <img src={item.img} alt=''></img>
             </div>
@@ -74,30 +35,28 @@ const CartCard = ({ item, onNumsChange }) => {
                 <h2>{item.name}</h2>
                 <div>
                     <div className={classes.nums} onClick={e => e.stopPropagation()}>
-                        {state.showChange &&
+                        {showChange &&
                             <button onClick={minusHandler}>
                                 <FontAwesomeIcon icon={faMinus} />
                             </button>
                         }
-                        {!state.showChange &&
+                        {!showChange &&
                             <span className={classes.iconX}>
                                 <FontAwesomeIcon icon={faXmark} />
                             </span>
                         }
-                        <span className={classes.number}
-                            onClick={() => dispatch({ type: ACTIONS.SHOW_CONTROLS })}>
-                            {state.nums}
+                        <span className={classes.number} onClick={() => setShowChange(true)}>
+                            {item.nums}
                         </span>
-                        {state.showChange &&
+                        {showChange &&
                             <button onClick={addHandler}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </button>
                         }
                     </div>
-                    <span>￥{item.price * state.nums}</span>
+                    <span>￥{item.price * item.nums}</span>
                 </div>
             </div>
-            {state.error && <div className={classes.error}>{state.error}</div>}
         </div>
     );
     return null;

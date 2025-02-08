@@ -1,30 +1,27 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import classes from './Search.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
-const Search = ({ onSearch }) => {
-    // 创建防抖函数
-    const debounce = (fn, delay) => {
-        let timer;
-        return function (...args) {
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                fn.apply(this, args);
-            }, delay);
-        };
+// 将 debounce 移到组件外部
+const debounce = (fn, delay) => {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fn.apply(this, args);
+        }, delay);
     };
+};
 
-    // 使用useCallback记忆防抖后的搜索处理函数
-    const searchHandler = useCallback(
-        debounce((e) => {
-            onSearch(prev => ({
-                ...prev,
-                categories: e.target.value
-            }));
-        }, 500),
-        []
-    );
+const Search = ({ onSearch }) => {
+    // 直接使用 debounce，不需要 useCallback
+    const searchHandler = debounce((e) => {
+        onSearch(prev => ({
+            ...prev,
+            categories: e.target.value
+        }));
+    }, 500);
 
     return (
         <div className={classes.search}>

@@ -214,7 +214,7 @@ app.post('/api/cart/add', (req, res) => {
     writeCart(cart);
     res.json({ message: '添加成功！', length: cart.length });
 });
-app.post('/api/cartNumsChange', (req, res) => {
+app.post('/api/cart/numsChange', (req, res) => {
     const { id, nums } = req.body;
     const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'))
     if (nums === 0) cart.pop(cart.find(item => item.id === id))

@@ -1,21 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import classes from './ProductsList.module.css'
 import Card from '../Card/Card';
+import { useGetDataQuery } from '../../store/dataApi';
 
 const ProductsList = ({ filters }) => {
-    const [data, setData] = useState(null);
+    const { data, isLoading, error } = useGetDataQuery();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const response = await fetch('http://localhost:5000/api/data');
-            const result = await response.json();
-            setData(result);
-        };
-        fetchData();
-    }, []);
+    // useMemo 用于缓存计算结果,使用useMemo避免每次渲染都重新过滤数据
     const filteredData = useMemo(() => {
         if (!data) return [];
-
         return data.filter(item => {
             if (!item.name.includes(filters.categories) && !item.kinds.includes(filters.categories)) return false;
             if (filters.Symbol.length && item.Symbol !== filters.Symbol) return false;
@@ -26,6 +19,10 @@ const ProductsList = ({ filters }) => {
     if (filters.sortBy === 'minfirst') {
         filteredData.sort((a, b) => a.newprice - b.newprice)
     }
+
+    if (isLoading) return <div>加载中...</div>;
+    if (error) return <div>错误: {error.message}</div>;
+    if (!data) return null;
     return (
         <div className={classes.list}>
             {filteredData.map(item => (
