@@ -3,15 +3,30 @@ import classes from './ProductSrc.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartPlus, faMinus, faPlus, faWallet } from '@fortawesome/free-solid-svg-icons';
 import { useAddCartMutation } from '../../store/cartApi';
+import { useNavigate } from 'react-router-dom';
 
 const ProductSrc = ({ data }) => {
+    const navigate = useNavigate();
     const [nums, setnums] = useState(1);
     const [addCart] = useAddCartMutation();
+
     const addToCartHandler = async () => {
         try {
-            await addCart({ id: data.id, nums: nums });
+            const token = localStorage.getItem('token');
+            if (!token) {
+                navigate('/login');
+                return;
+            }
+            await addCart({
+                id: data.id,
+                nums: nums
+            });
         } catch (error) {
             console.error('添加失败！');
+            if (error.status === 401) {
+                navigate('/login');
+            }
+
         }
     }
     return (

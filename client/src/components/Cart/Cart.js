@@ -4,9 +4,16 @@ import CartCard from '../CartCard/CartCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWallet } from '@fortawesome/free-solid-svg-icons';
 import { useGetCartQuery, useChangeCartMutation } from '../../store/cartApi';
+import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
+    const navigate = useNavigate();
     const { data, isLoading, error } = useGetCartQuery();
+    React.useEffect(() => {
+        if (error?.status === 401) {
+            navigate('/login');
+        }
+    }, [error, navigate]);
     const [updateCart] = useChangeCartMutation();
 
     const updateItemNums = async (id, newNums) => {
@@ -18,7 +25,7 @@ const Cart = () => {
     };
 
     if (isLoading) return <div>加载中...</div>;
-    if (error) return <div>错误: {error.message}</div>;
+    if (error) return null;
     if (!data) return <div>购物车是空的</div>;
 
     const sum = data.reduce((acc, item) => acc + item.price * item.nums, 0);

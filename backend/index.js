@@ -1,18 +1,62 @@
 const express = require("express")
-const app = express()
+
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const SECRET_KEY = 'wsyyyue777';
+
 const path = require('path')
 const fs = require('fs');
-const { json } = require("stream/consumers");
+// const { json } = require("stream/consumers");
 
+const app = express()
 const cartFilePath = path.join(__dirname, 'cart.json');
+const usersFilePath = path.join(__dirname, 'users.json');
+
 const writeCart = (cart) => {
     fs.writeFileSync(cartFilePath, JSON.stringify(cart, null, 2));
 };
+const writeUsers = (users) => {
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+}
+
+const authCheck = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+        return res.status(401).json({
+            status: 'fail',
+            message: '未登录'
+        });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        // 检查用户是否仍然存在
+        const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+        const userExists = users.some(user => user.email === decoded.email);
+
+        if (!userExists) {
+            return res.status(401).json({
+                status: 'fail',
+                message: '用户不存在，请重新登录'
+            });
+        }
+
+        req.user = decoded;
+        next();
+    } catch (error) {
+        // token过期或无效时会抛出异常
+        return res.status(401).json({
+            status: 'fail',
+            message: 'token无效'
+        });
+    }
+};
 
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Credentials', true);
     if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
@@ -196,7 +240,7 @@ const data = [
 
 app.use(express.json());
 
-app.post('/api/cart/add', (req, res) => {
+app.post('/api/cart/add', authCheck, (req, res) => {
     const { id, nums } = req.body;
     const product = data.find(item => item.id === parseInt(id));
     const cartItem = {
@@ -207,25 +251,35 @@ app.post('/api/cart/add', (req, res) => {
         img: product.img1
     };
     const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'))
-    if (cart.findIndex(item => item.id === id) !== -1) {
-        const product = cart.findIndex(item => item.id === id);
-        cart[product].nums += nums;
-    } else cart.push(cartItem);
+    if (!cart[req.user.email]) {
+        cart[req.user.email] = [];
+    }
+    const userCart = cart[req.user.email];
+    const productIndex = userCart.findIndex(item => item.id === id);
+    if (productIndex !== -1) {
+        userCart[productIndex].nums += nums;
+    } else userCart.push(cartItem);
     writeCart(cart);
-    res.json({ message: '添加成功！', length: cart.length });
+    res.json({ message: '添加成功！', length: userCart.length });
 });
-app.post('/api/cart/numsChange', (req, res) => {
+app.post('/api/cart/numsChange', authCheck, (req, res) => {
     const { id, nums } = req.body;
     const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'))
-    if (nums === 0) cart.pop(cart.find(item => item.id === id))
-    else cart.find(item => item.id === id).nums = nums
+    const userCart = cart[req.user.email];
+    if (nums === 0)
+        cart[req.user.email] = userCart.filter(item => item.id !== id);
+    else {
+        const item = userCart.find(item => item.id === id);
+        if (item) item.nums = nums;
+    }
     writeCart(cart);
     res.json('修改成功')
 })
 
-app.get('/api/cart/read', (req, res) => {
+app.get('/api/cart/read', authCheck, (req, res) => {
     const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'));
-    res.json(cart);
+    const userCart = cart[req.user.email] || [];
+    res.json(userCart);
 })
 
 app.get('/api/data', (req, res) => {
@@ -236,6 +290,68 @@ app.get('/api/data/product/:id', (req, res) => {
     const product = data.find(item => item.id === id);
     res.json(product);
 });
+
+app.post('/api/user/regin', (req, res) => {
+    const { email, password } = req.body;
+    const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+    const user = users.find(item => item.email === email);
+
+    if (!user) {
+        return res.status(400).json({
+            status: 'fail',
+            message: '用户不存在'
+        });
+    }
+
+    const isMatch = bcrypt.compareSync(password, user.password);
+    if (!isMatch) {
+        return res.status(400).json({
+            status: 'fail',
+            message: '密码错误'
+        });
+    }
+    const token = jwt.sign(
+        { email: user.email },
+        SECRET_KEY,
+        { expiresIn: '24h' }
+    );
+
+    res.json({
+        status: 'success',
+        message: '登录成功',
+        token
+    });
+})
+
+app.post('/api/user/regist', (req, res) => {
+    const { email, username, password } = req.body;
+    if (!email || !username || !password) {
+        return res.status(400).json({
+            status: 'fail',
+            message: '邮箱、用户名和密码都是必填项'
+        });
+    }
+    const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+    if (users.find(item => item.email === email))
+        return res.status(400).json({
+            status: 'fail',
+            message: '邮箱已被注册'
+        });
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(password, salt);
+    const newUser = {
+        email,
+        username,
+        password: hashedPassword,
+    };
+    users.push(newUser);
+    writeUsers(users);
+    res.json({
+        status: 'success',
+        message: '注册成功'
+    });
+})
+
 app.listen(5000, () => {
     console.log(111);
 })
