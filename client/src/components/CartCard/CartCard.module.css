@@ -1,5 +1,6 @@
 .cartcard {
     display: flex;
+    position: relative;
     margin-bottom: 10px;
 }
 
@@ -46,4 +47,15 @@
 
 .number {
     cursor: pointer;
+}
+
+.del {
+    position: absolute;
+    right: 5px;
+    color: #8b8a8a;
+    cursor: pointer;
+}
+
+.del:hover {
+    color: black;
 }

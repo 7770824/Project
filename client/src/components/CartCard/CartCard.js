@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
 import classes from './CartCard.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faCircleXmark, faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { useChangeCartMutation } from '../../store/cartApi'
 
 const CartCard = ({ item }) => {
     const [showChange, setShowChange] = useState(false);
     const [changeCart] = useChangeCartMutation();
 
-    const minusHandler = async () => {
+    const minusHandler = async (nums) => {
         // e.stopPropagation();
         try {
-            await changeCart({ id: item.id, nums: item.nums - 1 });
+            await changeCart({ id: item.id, nums: nums });
         } catch (error) {
             console.error('操作失败');
         }
@@ -36,7 +36,7 @@ const CartCard = ({ item }) => {
                 <div>
                     <div className={classes.nums} onClick={e => e.stopPropagation()}>
                         {showChange &&
-                            <button onClick={minusHandler}>
+                            <button onClick={() => minusHandler(item.nums - 1)}>
                                 <FontAwesomeIcon icon={faMinus} />
                             </button>
                         }
@@ -49,13 +49,16 @@ const CartCard = ({ item }) => {
                             {item.nums}
                         </span>
                         {showChange &&
-                            <button onClick={addHandler}>
+                            <button onClick={() => addHandler}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </button>
                         }
                     </div>
                     <span>￥{item.price * item.nums}</span>
                 </div>
+            </div>
+            <div className={classes.del} onClick={() => minusHandler(0)}>
+                <FontAwesomeIcon icon={faCircleXmark} />
             </div>
         </div>
     );

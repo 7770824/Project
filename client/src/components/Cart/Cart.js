@@ -28,7 +28,7 @@ const Cart = () => {
     if (error) return null;
     if (!data) return <div>购物车是空的</div>;
 
-    const sum = data.reduce((acc, item) => acc + item.price * item.nums, 0);
+    const sum = data.reduce((acc, item) => acc + item.price * item.nums, 0).toFixed(2);
 
     return (
         <div className={classes.cart}>
