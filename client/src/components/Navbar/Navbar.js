@@ -5,8 +5,10 @@ import { faUser } from '@fortawesome/free-regular-svg-icons'
 import classes from "./Navbar.module.css"
 import { Link } from 'react-router-dom'
 import Cart from '../Cart/Cart'
+import Userbox from '../Userbox/Userbox'
 const Navbar = () => {
-    const [open, setopen] = useState(false);
+    const [cartOpen, setCartOpen] = useState(false);
+    const [userOpen, setUserOpen] = useState(false);
     return (
         <div className={classes.navbar}>
             <div className={classes.wrapper}>
@@ -46,17 +48,18 @@ const Navbar = () => {
                     </div>
                     <hr />
                     <div className={classes.icons}>
-                        <div className={classes.userIcon}>
-                            <Link to='/login'><FontAwesomeIcon icon={faUser} /></Link>
+                        <div className={classes.userIcon} onClick={() => setUserOpen(!userOpen)}>
+                            <FontAwesomeIcon icon={faUser} />
                         </div>
                         <hr />
-                        <div className={classes.cartIcon} onClick={() => setopen(!open)}>
+                        <div className={classes.cartIcon} onClick={() => setCartOpen(!cartOpen)}>
                             <FontAwesomeIcon icon={faCartShopping} />
                         </div>
                     </div>
                 </div>
             </div>
-            {open && <Cart />}
+            {cartOpen && <Cart />}
+            {userOpen && <Userbox />}
         </div >
     )
 }

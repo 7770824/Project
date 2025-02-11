@@ -352,6 +352,50 @@ app.post('/api/user/regist', (req, res) => {
     });
 })
 
+app.get('/api/user/info', authCheck, (req, res) => {
+    const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+    const user = users.find(user => user.email === req.user.email);
+    if (!user) {
+        return res.status(401).json({
+            status: 'fail',
+            message: '用户不存在'
+        });
+    }
+    res.json({
+        status: 'success',
+        data: {
+            email: user.email,
+            username: user.username
+        }
+    });
+});
+
+app.delete('/api/user/delete', authCheck, (req, res) => {
+    const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+    const userIndex = users.findIndex(user => user.email === req.user.email);
+
+    if (userIndex === -1) {
+        return res.status(404).json({
+            status: 'fail',
+            message: '用户不存在'
+        });
+    }
+
+    // 删除用户
+    users.splice(userIndex, 1);
+    writeUsers(users);
+
+    // 删除用户的购物车数据
+    const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'));
+    delete cart[req.user.email];
+    writeCart(cart);
+
+    res.json({
+        status: 'success',
+        message: '账号已注销'
+    });
+});
+
 app.listen(5000, () => {
     console.log(111);
 })

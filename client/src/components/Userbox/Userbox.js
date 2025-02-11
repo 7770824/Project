@@ -1,0 +1,60 @@
+import React from 'react'
+import classes from './Userbox.module.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHouse } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom'
+import { useDeleteUserMutation, useGetUserInfoQuery } from '../../store/userApi'
+
+const Userbox = () => {
+    const navigate = useNavigate();
+    const { data, isLoading, error } = useGetUserInfoQuery();
+    const [delUser] = useDeleteUserMutation();
+    const token = localStorage.getItem('token');
+    const logoutHandler = () => {
+        localStorage.removeItem('token');
+        window.location.reload();
+    };
+    const deleteAccountHandler = async () => {
+        if (window.confirm('确定要注销账号吗？此操作不可恢复！')) {
+            try {
+                await delUser().unwrap();
+                localStorage.removeItem('token');
+                alert('账号已成功注销');
+                window.location.reload();
+            } catch (error) {
+                alert('注销账号失败：' + (error.data?.message || '未知错误'));
+            }
+        }
+    };
+
+    if (isLoading) return <div className={classes.userbox}>加载中...</div>;
+
+    if (!token || error) {
+        return (
+            <div className={classes.userbox}>
+                <div className={classes.name}>用户未登录</div>
+                <div className={classes.goLogin}>
+                    <button onClick={() => navigate('/login')}>去登录</button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={classes.userbox}>
+            <div className={classes.name}>
+                <FontAwesomeIcon icon={faHouse} />
+                {data?.data?.username}
+            </div>
+            <div className={classes.email}>
+                {data?.data?.email}
+            </div>
+            <div className={classes.goLogin}>
+                <button onClick={logoutHandler}>退出登录</button>
+                <button onClick={deleteAccountHandler}>注销账号</button>
+            </div>
+        </div>
+    )
+}
+
+export default Userbox

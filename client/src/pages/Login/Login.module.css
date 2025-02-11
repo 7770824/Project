@@ -1,0 +1,82 @@
+.login {
+    width: 100%;
+    height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 100px;
+}
+
+.login h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #333;
+}
+
+.login form {
+    width: 400px;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.login form div {
+    margin-bottom: 20px;
+}
+
+.login input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.login input:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.3);
+}
+
+.login button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.login button:hover {
+    background-color: #40a9ff;
+}
+
+.login a {
+    color: #1890ff;
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    text-align: center;
+    transition: color 0.3s ease;
+}
+
+.login a:hover {
+    color: #40a9ff;
+}
+
+/* 错误信息样式 */
+.login h2[style*="color: red"] {
+    font-size: 14px;
+    padding: 10px;
+    background-color: #fff1f0;
+    border: 1px solid #ffccc7;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}

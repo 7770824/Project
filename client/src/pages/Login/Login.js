@@ -41,7 +41,7 @@ const Login = () => {
     }
 
     return (
-        <div>
+        <div className={classes.login}>
             <h2>{isLogin ? "登录" : "注册"}</h2>
             <h2 style={{ color: 'red' }}>
                 {(isLogin ? reginErr : registErr) &&
