@@ -3,16 +3,21 @@ import classes from './Userbox.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
-import { useDeleteUserMutation, useGetUserInfoQuery } from '../../store/userApi'
+import { useDeleteUserMutation, useGetUserInfoQuery, useLogoutUserMutation } from '../../store/userApi'
 
 const Userbox = () => {
     const navigate = useNavigate();
     const { data, isLoading, error } = useGetUserInfoQuery();
+    const [logout] = useLogoutUserMutation();
     const [delUser] = useDeleteUserMutation();
-    const token = localStorage.getItem('token');
-    const logoutHandler = () => {
-        localStorage.removeItem('token');
-        window.location.reload();
+    const logoutHandler = async () => {
+        try {
+            await logout().unwrap();
+            window.location.reload();
+        } catch (error) {
+            console.error('退出登录失败', error);
+        }
+
     };
     const deleteAccountHandler = async () => {
         if (window.confirm('确定要注销账号吗？此操作不可恢复！')) {
@@ -29,7 +34,7 @@ const Userbox = () => {
 
     if (isLoading) return <div className={classes.userbox}>加载中...</div>;
 
-    if (!token || error) {
+    if (error?.status === 401) {
         return (
             <div className={classes.userbox}>
                 <div className={classes.name}>用户未登录</div>

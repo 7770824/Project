@@ -26,8 +26,8 @@ const Login = () => {
             if (isLogin) {
                 const result = await regin({ email, password }).unwrap();
                 if (result.status === 'success') {
-                    localStorage.setItem('token', result.token);
                     navigate('/'); // 登录成功后跳转到首页
+                    window.location.reload();
                 }
             } else {
                 const result = await regist({ email, username, password }).unwrap();

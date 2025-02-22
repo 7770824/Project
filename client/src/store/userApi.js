@@ -4,15 +4,9 @@ const userApi = createApi({
     reducerPath: 'userApi',
     baseQuery: fetchBaseQuery({
         baseUrl: "http://localhost:5000/api/user/",
-        prepareHeaders: (headers) => {
-            const token = localStorage.getItem('token');
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
+        credentials: 'include'
     }),
-    tagTypes: ['User'],
+    tagTypes: ['User', 'Cart'],
     endpoints(build) {
         return {
             reginUser: build.mutation({
@@ -21,7 +15,7 @@ const userApi = createApi({
                     method: 'POST',
                     body: data
                 }),
-                providesTags: ['User']
+                invalidatesTags: ['User', 'Cart']
             }),
             registUser: build.mutation({
                 query: (data) => ({
@@ -33,6 +27,13 @@ const userApi = createApi({
             getUserInfo: build.query({
                 query: () => 'info',
                 providesTags: ['User']
+            }),
+            logoutUser: build.mutation({
+                query: () => ({
+                    url: 'logout',
+                    method: 'POST'
+                }),
+                invalidatesTags: ['User']
             }),
             deleteUser: build.mutation({
                 query: () => ({
@@ -47,6 +48,7 @@ export const {
     useReginUserMutation,
     useRegistUserMutation,
     useGetUserInfoQuery,
+    useLogoutUserMutation,
     useDeleteUserMutation
 } = userApi;
 export default userApi;

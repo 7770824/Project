@@ -3,13 +3,7 @@ const cartApi = createApi({
     reducerPath: 'cartApi',  //名字
     baseQuery: fetchBaseQuery({
         baseUrl: "http://localhost:5000/api/cart/",
-        prepareHeaders: (headers) => {
-            const token = localStorage.getItem('token');
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
+        credentials: 'include'
     }),
     tagTypes: ['Cart'],  // 添加标签类型
     endpoints(build) {  //定义各种方法
@@ -17,14 +11,11 @@ const cartApi = createApi({
         return {
             getCart: build.query({
                 query: () => 'read',//用于指定请求子路径
-                async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                async onQueryStarted(arg, { queryFulfilled }) {
                     try {
                         await queryFulfilled;
                     } catch (err) {
-                        if (err.error.status === 401) {
-                            // token 无效或过期时清除本地存储的 token
-                            localStorage.removeItem('token');
-                        }
+
                     }
                 },
                 providesTags: ['Cart']

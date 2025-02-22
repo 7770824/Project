@@ -1,5 +1,8 @@
 const express = require("express")
 
+const cors = require('cors');
+
+const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const SECRET_KEY = 'wsyyyue777';
@@ -19,15 +22,16 @@ const writeUsers = (users) => {
     fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
 }
 
+app.use(cookieParser());
+
 const authCheck = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) {
+    const token = req.cookies.token;  // 修改 req.cookie 为 req.cookies
+    if (!token) {
         return res.status(401).json({
             status: 'fail',
             message: '未登录'
         });
     }
-    const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
         // 检查用户是否仍然存在
@@ -45,6 +49,7 @@ const authCheck = (req, res, next) => {
         next();
     } catch (error) {
         // token过期或无效时会抛出异常
+        res.clearCookie('token');
         return res.status(401).json({
             status: 'fail',
             message: 'token无效'
@@ -52,16 +57,10 @@ const authCheck = (req, res, next) => {
     }
 };
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Credentials', true);
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
-});
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 // 配置静态文件服务
 app.use('/dataImg', express.static(path.join(__dirname, 'dataImg')))
 
@@ -316,10 +315,17 @@ app.post('/api/user/regin', (req, res) => {
         { expiresIn: '24h' }
     );
 
+    //使用cookie存储token
+    res.cookie('token', token, {
+        httpOnly: true, //防止xss攻击
+        // secure: process.env.NODE_ENV === 'pruduction', //生产环境下只允许https
+        // sameSite: 'strict',  //防止csrf攻击
+        maxAge: 24 * 60 * 60 * 1000  //24h过期
+    })
+
     res.json({
         status: 'success',
         message: '登录成功',
-        token
     });
 })
 
@@ -369,6 +375,11 @@ app.get('/api/user/info', authCheck, (req, res) => {
         }
     });
 });
+
+app.post('/api/user/logout', (req, res) => {
+    res.clearCookie('token');
+    res.json({ status: 'success', message: '已登出' })
+})
 
 app.delete('/api/user/delete', authCheck, (req, res) => {
     const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
