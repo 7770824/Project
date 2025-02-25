@@ -1,5 +1,4 @@
 .slider {
-    height: calc(100vh - 80px);
     width: 100vw;
     /* overflow: hidden; */
     position: relative;
@@ -44,4 +43,14 @@ img {
 
 .icon:hover {
     border: 1px solid rgba(255, 255, 255, .7);
+}
+
+@media screen and (max-width:760px) {
+    .slider {
+        margin-top: 60px;
+    }
+
+    .icons {
+        bottom: 50px;
+    }
 }

@@ -66,3 +66,43 @@ p {
     border: 1px solid rgb(209, 179, 14);
     background-color: rgb(237, 226, 162);
 }
+
+@media screen and (max-width: 768px) {
+    .productsrc {
+        gap: 20px;
+    }
+
+    .productsrc h1 {
+        font-size: 24px;
+    }
+
+    .price {
+        font-size: 24px;
+    }
+
+    p {
+        font-size: 16px;
+    }
+
+    .nums {
+        gap: 5px;
+    }
+
+    .nums span,
+    .nums button {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .goStep {
+        height: 8vh;
+        justify-content: space-between;
+    }
+
+    .goCart,
+    .goBuy {
+        font-size: 18px;
+        height: 45px;
+    }
+}

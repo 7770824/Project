@@ -12,9 +12,6 @@
 }
 
 .cartItems {
-    /* display: flex;
-    flex-direction: column;
-    gap: 10px; */
     max-height: 45vh;
     overflow-y: auto;
 }
@@ -46,4 +43,14 @@
     border: 1px solid rgb(209, 179, 14);
     background-color: rgb(237, 226, 162);
     cursor: pointer;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .cart {
+        width: 75vw;
+        right: 0;
+        top: 50px;
+        padding: 10px;
+    }
 }

@@ -4,3 +4,14 @@
     flex-wrap: wrap;
     gap: 15px;
 }
+
+@media screen and (max-width:768px) {
+    .list {
+        gap: 0;
+        justify-content: space-between;
+    }
+
+    .list>div {
+        width: 175px;
+    }
+}

@@ -16,18 +16,29 @@
 }
 
 .left {
-    width: 270px;
-    position: sticky;
-    height: 100%;
-    top: 50px;
-    border-right: 1px solid rgb(203, 202, 202);
+    position: fixed;
+    top: 100px;
+    background-color: #fff;
+    box-shadow: 8px 0px 15px rgba(0, 0, 0, 0.17);
 }
 
 .right {
     flex: 1;
 }
 
+.faFilter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    background-color: rgb(182, 179, 179);
+    cursor: pointer;
+}
+
 .filter {
+    width: 270px;
     margin-bottom: 30px;
 }
 
@@ -46,4 +57,38 @@ label {
 
 .space {
     margin-right: 20px;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .products {
+        margin-top: 50px;
+        padding: 15px;
+    }
+
+    .search {
+        padding: 2px;
+    }
+
+    .left {
+        top: 130px;
+    }
+
+    .faFilter {
+        width: 40px;
+        height: 40px;
+    }
+
+    h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .filterInput {
+        margin-bottom: 8px;
+    }
+
+    label {
+        font-size: 14px;
+    }
 }

@@ -45,3 +45,39 @@
 a {
     display: flex;
 }
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .categories {
+        flex-direction: column;
+        height: auto;
+        margin: 5px;
+        gap: 5px;
+    }
+
+    .col {
+        width: 100%;
+    }
+
+    .rowfirst,
+    .rowsecond {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .tag {
+        right: 20px;
+        top: 20px;
+        font-size: 16px;
+    }
+
+    a {
+        width: 100%;
+    }
+
+    img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+}

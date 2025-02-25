@@ -9,6 +9,8 @@
     width: 300px;
     padding: 10px 20px;
     gap: 10px;
+    z-index: 100;
+    /* 添加z-index确保显示在其他元素上方 */
 }
 
 .name {
@@ -36,4 +38,36 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .userbox {
+        right: 20px;
+        /* 调整右侧距离 */
+        top: 50px;
+        /* 调整顶部距离 */
+        width: calc(100vw - 20px);
+        /* 宽度设置为视口宽度减去左右边距 */
+        max-width: 300px;
+        /* 设置最大宽度 */
+        padding: 15px;
+        /* 调整内边距 */
+    }
+
+    .name {
+        font-size: 18px;
+        /* 稍微减小字体大小 */
+    }
+
+    .email {
+        font-size: 14px;
+    }
+
+    .goLogin button {
+        height: 40px;
+        /* 稍微减小按钮高度 */
+        margin-top: 8px;
+        /* 调整按钮间距 */
+    }
 }

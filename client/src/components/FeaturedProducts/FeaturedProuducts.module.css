@@ -19,6 +19,38 @@
 
 .products {
     display: flex;
-    justify-content: center;
     gap: 50px;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .featuredProducts {
+        margin: 50px 15px;
+    }
+
+    .top h1 {
+        font-size: 24px;
+    }
+
+    .products {
+        overflow-x: auto;
+        /* 添加横向滚动 */
+        scroll-behavior: smooth;
+        /* 使用标准的平滑滚动属性 */
+        scroll-snap-type: x mandatory;
+        /* 使滚动更顺滑 */
+        padding-bottom: 15px;
+        /* 添加底部padding以显示滚动条 */
+    }
+
+    /* 隐藏滚动条但保持功能 */
+    .products::-webkit-scrollbar {
+        display: none;
+    }
+
+    .products {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        /* scrollbar-width: none;     Firefox */
+    }
 }

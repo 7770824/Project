@@ -45,3 +45,27 @@
     cursor: pointer;
     align-items: center;
 }
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .navbar {
+        height: 60px;
+    }
+
+    .wrapper {
+        padding: 10px 15px;
+        height: 40px;
+    }
+
+    .left {
+        display: none;
+    }
+
+    .center {
+        font-size: 24px;
+    }
+
+    .right {
+        font-size: 18px;
+    }
+}
