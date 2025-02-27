@@ -1,22 +1,38 @@
+import React, { Suspense, useEffect, useState } from 'react';
 import {
     createBrowserRouter,
     Outlet,
     RouterProvider,
 } from "react-router-dom";
 
-import React, { useEffect, useState } from 'react';
-import Home from "./pages/Home/Home";
-import Products from "./pages/Products/Products";
-import Product from "./pages/Product/Product";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
-import Login from "./pages/Login/Login";
+
+// 使用 React.lazy 懒加载页面组件
+const Home = React.lazy(() => import("./pages/Home/Home"));
+const Products = React.lazy(() => import("./pages/Products/Products"));
+const Product = React.lazy(() => import("./pages/Product/Product"));
+const Login = React.lazy(() => import("./pages/Login/Login"));
+
+// 加载状态组件
+const LoadingSpinner = () => (
+    <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh'
+    }}>
+        <div>加载中...</div>
+    </div>
+);
 
 const Layout = () => {
     return (
         <div className="app">
             <Navbar />
-            <Outlet />
+            <Suspense fallback={<LoadingSpinner />}>
+                <Outlet />
+            </Suspense>
             <Footer />
         </div>
     )
@@ -43,26 +59,16 @@ const router = createBrowserRouter([
     },
     {
         path: "/login",
-        element: <Login />
+        element: (
+            <Suspense fallback={<LoadingSpinner />}>
+                <Login />
+            </Suspense>
+        )
     }
 ])
 
 const App = () => {
-    // const [data, setdata] = useState(null)
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const response = await fetch('http://localhost:5000/api/data');
-    //             const result = await response.json();
-    //             setdata(result);
-    //         } catch (error) {
-    //             console.error("Error fetching data:", error);
-    //         }
-    //     };
-    //     fetchData();
-    // }, []);
     return (
-
         <div>
             <RouterProvider router={router} />
         </div>
