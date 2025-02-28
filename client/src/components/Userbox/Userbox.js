@@ -3,11 +3,11 @@ import classes from './Userbox.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
-import { useDeleteUserMutation, useGetUserInfoQuery, useLogoutUserMutation } from '../../store/userApi'
-
+import { useDeleteUserMutation, useLogoutUserMutation } from '../../store/userApi'
+import { useAuth } from '../../hooks/useAuth'
 const Userbox = () => {
     const navigate = useNavigate();
-    const { data, isLoading, error } = useGetUserInfoQuery();
+    const { user, isLoading, isAuthenticated } = useAuth('/login', false);
     const [logout] = useLogoutUserMutation();
     const [delUser] = useDeleteUserMutation();
 
@@ -35,7 +35,7 @@ const Userbox = () => {
 
     if (isLoading) return <div className={classes.userbox}>加载中...</div>;
 
-    if (error?.status === 401) {
+    if (!isAuthenticated) {
         return (
             <div className={classes.userbox}>
                 <div className={classes.name}>用户未登录</div>
@@ -48,17 +48,17 @@ const Userbox = () => {
 
     return (
         <div className={classes.userbox}>
-            {data?.data?.avatar && (
+            {user?.avatar && (
                 <div className={classes.avatar}>
-                    <img src={data.data.avatar} alt="用户头像" />
+                    <img src={user.avatar} alt="用户头像" />
                 </div>
             )}
             <div className={classes.name}>
-                {!data?.data?.avatar && <FontAwesomeIcon icon={faHouse} />}
-                {data?.data?.nickname || data?.data?.username}
+                {!user?.avatar && <FontAwesomeIcon icon={faHouse} />}
+                {user?.nickname || user?.username}
             </div>
             <div className={classes.email}>
-                {data?.data?.email}
+                {user?.email}
             </div>
             <div className={classes.goLogin}>
                 <button onClick={() => navigate('/profile')}>编辑资料</button>

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload, faImage } from '@fortawesome/free-solid-svg-icons';
 import classes from './AvatarUploader.module.css';
+import { useFileUpload } from '../../hooks/useFileUpload';
+import { useDragDrop } from '../../hooks/useDragDrop';
 
 const AvatarUploader = ({
   initialAvatar = null,
@@ -9,71 +11,19 @@ const AvatarUploader = ({
   buttonText = "上传头像",
   previewSize = "medium"
 }) => {
-  const [avatar, setAvatar] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-
-  // 如果提供了初始头像，设置预览
-  useEffect(() => {
-    if (initialAvatar) {
-      setPreviewUrl(initialAvatar);
+  const { file, previewUrl, handleFileChange } = useFileUpload(initialAvatar);
+  const { isDragOver, dragProps } = useDragDrop(handleFileChange);
+  // 当文件变更时，通知父组件
+  React.useEffect(() => {
+    if (file) {
+      onAvatarChange(file);
     }
-  }, [initialAvatar]);
+  }, [file, onAvatarChange]);
 
-  // 处理头像上传
-  const handleAvatarChange = (e) => {
+  // 处理文件选择
+  const handleInputChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
-    }
-  };
-
-  // 处理文件逻辑
-  const processFile = (file) => {
-    // 检查是否是图片文件
-    if (!file.type.startsWith('image/')) {
-      alert('请上传图片文件！');
-      return;
-    }
-
-    setAvatar(file);
-
-    // 将文件传递给父组件
-    onAvatarChange(file);
-
-    // 创建预览
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // 拖拽处理函数
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(true);
-  };
-
-  const handleDragEnter = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
+      handleFileChange(e.target.files[0]);
     }
   };
 
@@ -85,7 +35,7 @@ const AvatarUploader = ({
           <input
             type="file"
             accept="image/*"
-            onChange={handleAvatarChange}
+            onChange={handleInputChange}
             style={{ display: 'none' }}
           />
           <div className={classes.uploadBtn}>
@@ -96,10 +46,7 @@ const AvatarUploader = ({
         {/* 拖拽区域 */}
         <div
           className={`${classes.dropZone} ${isDragOver ? classes.dragOver : ''}`}
-          onDragOver={handleDragOver}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          {...dragProps}
         >
           <FontAwesomeIcon icon={faImage} size="2x" />
           <p>拖拽图片到此处上传</p>

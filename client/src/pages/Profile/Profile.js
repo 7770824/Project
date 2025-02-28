@@ -1,30 +1,31 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetUserInfoQuery, useUpdateUserMutation } from '../../store/userApi';
+import { useUpdateUserMutation } from '../../store/userApi';
 import classes from './Profile.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSave } from '@fortawesome/free-solid-svg-icons';
 import AvatarUploader from '../../components/AvatarUploader/AvatarUploader';
+import { useAuth } from '../../hooks/useAuth';
+import { useMessage } from '../../hooks/useMessage';
+import { useFileUpload } from '../../hooks/useFileUpload';
 
 const Profile = () => {
     const navigate = useNavigate();
-    const { data, isLoading, error } = useGetUserInfoQuery();
+    const { user, isLoading } = useAuth(); // 使用auth钩子获取用户信息
     const [updateProfile, { isLoading: isUpdating }] = useUpdateUserMutation();
 
-    const [avatar, setAvatar] = useState(null);
-    const [successMsg, setSuccessMsg] = useState('');
+    // 使用文件上传钩子管理头像
+    const { file: avatar, handleFileChange } = useFileUpload(user?.avatar);
+
+    // 使用消息钩子管理提示信息
+    const { message, showSuccess } = useMessage(3000);
 
     const usernameInp = useRef();
-
-    const handleAvatarChange = (file) => {
-        setAvatar(file);
-    };
 
     const submitHandler = async (e) => {
         e.preventDefault();
 
         const formData = new FormData();
-
         const username = usernameInp.current.value.trim();
 
         if (username) formData.append('username', username);
@@ -33,8 +34,7 @@ const Profile = () => {
         try {
             const result = await updateProfile(formData).unwrap();
             if (result.status === 'success') {
-                setSuccessMsg('个人资料更新成功！');
-                setTimeout(() => setSuccessMsg(''), 3000);
+                showSuccess('个人资料更新成功！');
             }
         } catch (error) {
             console.error('更新失败：', error);
@@ -42,10 +42,6 @@ const Profile = () => {
     };
 
     if (isLoading) return <div className={classes.loading}>加载中...</div>;
-    if (error?.status === 401) {
-        navigate('/login');
-        return null;
-    }
 
     return (
         <div className={classes.profile}>
@@ -59,15 +55,15 @@ const Profile = () => {
                 <h2>编辑个人资料</h2>
             </div>
 
-            {successMsg && (
-                <div className={classes.successMessage}>{successMsg}</div>
+            {message && (
+                <div className={classes.successMessage}>{message}</div>
             )}
 
             <form onSubmit={submitHandler}>
                 <AvatarUploader
-                    initialAvatar={data?.data?.avatar}
+                    initialAvatar={user?.avatar}
                     buttonText="选择新头像"
-                    onAvatarChange={handleAvatarChange}
+                    onAvatarChange={handleFileChange}
                     previewSize="large"
                 />
 
@@ -76,7 +72,7 @@ const Profile = () => {
                     <input
                         ref={usernameInp}
                         type="text"
-                        defaultValue={data?.data?.username}
+                        defaultValue={user?.username}
                         placeholder="用户名"
                     />
                 </div>
@@ -85,7 +81,7 @@ const Profile = () => {
                     <label>电子邮箱</label>
                     <input
                         type="email"
-                        value={data?.data?.email}
+                        value={user?.email}
                         disabled
                         readOnly
                     />
