@@ -18,10 +18,13 @@ const userApi = createApi({
                 invalidatesTags: ['User', 'Cart']
             }),
             registUser: build.mutation({
-                query: (data) => ({
+                query: (formData) => ({
                     url: 'regist',
                     method: 'POST',
-                    body: data
+                    // 不设置Content-Type，让浏览器自动设置为multipart/form-data
+                    body: formData,
+                    // 不序列化FormData
+                    formData: true,
                 }),
             }),
             getUserInfo: build.query({

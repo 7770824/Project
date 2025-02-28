@@ -11,6 +11,9 @@ const path = require('path')
 const fs = require('fs');
 // const { json } = require("stream/consumers");
 
+// 在现有的导入语句后添加multer
+const multer = require('multer');
+
 const app = express()
 const cartFilePath = path.join(__dirname, 'cart.json');
 const usersFilePath = path.join(__dirname, 'users.json');
@@ -329,35 +332,103 @@ app.post('/api/user/regin', (req, res) => {
     });
 })
 
-app.post('/api/user/regist', (req, res) => {
-    const { email, username, password } = req.body;
-    if (!email || !username || !password) {
-        return res.status(400).json({
+
+const avatarUploadDir = path.join(__dirname, 'uploads', 'avatars');
+
+// 配置multer存储
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, avatarUploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, `avatar-${uniqueSuffix}${ext}`);
+    }
+});
+
+// 文件类型过滤器
+const fileFilter = (req, file, cb) => {
+    // 只接受图片文件
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('只能上传图片文件！'), false);
+    }
+};
+
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB限制
+});
+
+// 设置静态文件服务，为头像提供访问
+app.use('/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
+
+// 修改注册接口
+app.post('/api/user/regist', upload.single('avatar'), (req, res) => {
+    try {
+        const { email, username, password } = req.body;
+
+        if (!email || !username || !password) {
+            // 如果上传了文件但注册失败，删除文件
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
+            return res.status(400).json({
+                status: 'fail',
+                message: '邮箱、用户名和密码都是必填项'
+            });
+        }
+
+        const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+        if (users.find(item => item.email === email)) {
+            // 如果上传了文件但注册失败，删除文件
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
+            return res.status(400).json({
+                status: 'fail',
+                message: '邮箱已被注册'
+            });
+        }
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt);
+
+        const avatarPath = req.file
+            ? `http://localhost:5000/avatars/${path.basename(req.file.path)}`
+            : null;
+
+        const newUser = {
+            email,
+            username,
+            password: hashedPassword,
+            avatar: avatarPath
+        };
+
+        users.push(newUser);
+        writeUsers(users);
+
+        res.json({
+            status: 'success',
+            message: '注册成功'
+        });
+    } catch (error) {
+        // 如果上传了文件但处理过程中出错，删除文件
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+        console.error('注册出错:', error);
+        res.status(500).json({
             status: 'fail',
-            message: '邮箱、用户名和密码都是必填项'
+            message: '服务器错误'
         });
     }
-    const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
-    if (users.find(item => item.email === email))
-        return res.status(400).json({
-            status: 'fail',
-            message: '邮箱已被注册'
-        });
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(password, salt);
-    const newUser = {
-        email,
-        username,
-        password: hashedPassword,
-    };
-    users.push(newUser);
-    writeUsers(users);
-    res.json({
-        status: 'success',
-        message: '注册成功'
-    });
-})
+});
 
+// 修改用户信息接口
 app.get('/api/user/info', authCheck, (req, res) => {
     const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
     const user = users.find(user => user.email === req.user.email);
@@ -371,7 +442,8 @@ app.get('/api/user/info', authCheck, (req, res) => {
         status: 'success',
         data: {
             email: user.email,
-            username: user.username
+            username: user.username,
+            avatar: user.avatar
         }
     });
 });
@@ -381,30 +453,57 @@ app.post('/api/user/logout', (req, res) => {
     res.json({ status: 'success', message: '已登出' })
 })
 
+// 修改删除用户API接口
 app.delete('/api/user/delete', authCheck, (req, res) => {
-    const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
-    const userIndex = users.findIndex(user => user.email === req.user.email);
+    try {
+        const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+        // 找到当前用户
+        const userIndex = users.findIndex(user => user.email === req.user.email);
 
-    if (userIndex === -1) {
-        return res.status(404).json({
+        if (userIndex === -1) {
+            return res.status(404).json({
+                status: 'fail',
+                message: '用户不存在'
+            });
+        }
+
+        // 获取用户数据，包括头像路径
+        const user = users[userIndex];
+
+        // 如果用户有头像，删除头像文件
+        if (user.avatar) {
+            try {
+                // 从URL中提取文件名
+                const avatarFilename = user.avatar.split('/').pop();
+                const avatarPath = path.join(avatarUploadDir, avatarFilename);
+
+                // 检查文件是否存在，然后删除
+                if (fs.existsSync(avatarPath)) {
+                    fs.unlinkSync(avatarPath);
+                    console.log(`删除用户头像: ${avatarPath}`);
+                }
+            } catch (fileError) {
+                console.error('删除头像文件失败:', fileError);
+                // 继续执行删除用户操作，即使头像删除失败
+            }
+        }
+
+        // 从用户列表中删除用户
+        users.splice(userIndex, 1);
+        writeUsers(users);
+
+        res.clearCookie('token');
+        res.json({
+            status: 'success',
+            message: '账号已注销'
+        });
+    } catch (error) {
+        console.error('删除用户出错:', error);
+        res.status(500).json({
             status: 'fail',
-            message: '用户不存在'
+            message: '服务器错误'
         });
     }
-
-    // 删除用户
-    users.splice(userIndex, 1);
-    writeUsers(users);
-
-    // 删除用户的购物车数据
-    const cart = JSON.parse(fs.readFileSync(cartFilePath, 'utf-8'));
-    delete cart[req.user.email];
-    writeCart(cart);
-
-    res.json({
-        status: 'success',
-        message: '账号已注销'
-    });
 });
 
 app.listen(5000, () => {

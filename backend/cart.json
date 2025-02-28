@@ -1,11 +1,18 @@
 {
   "3023644716@qq.com": [
     {
-      "id": 2,
-      "name": "BELLE百丽跑道系列休闲鞋",
-      "price": 299,
+      "id": 1,
+      "name": "BELLE百丽小白鞋",
+      "price": 199,
+      "nums": 2,
+      "img": "http://localhost:5000/dataImg/BELLE/1/1.jpg"
+    },
+    {
+      "id": 6,
+      "name": "德佑湿厕纸80抽*3",
+      "price": 19,
       "nums": 1,
-      "img": "http://localhost:5000/dataImg/BELLE/2/1.jpg"
+      "img": "http://localhost:5000/dataImg/daily/deyou/1.png"
     }
   ]
 }

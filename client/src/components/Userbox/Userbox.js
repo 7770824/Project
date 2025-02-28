@@ -10,6 +10,7 @@ const Userbox = () => {
     const { data, isLoading, error } = useGetUserInfoQuery();
     const [logout] = useLogoutUserMutation();
     const [delUser] = useDeleteUserMutation();
+
     const logoutHandler = async () => {
         try {
             await logout().unwrap();
@@ -17,8 +18,8 @@ const Userbox = () => {
         } catch (error) {
             console.error('退出登录失败', error);
         }
-
     };
+
     const deleteAccountHandler = async () => {
         if (window.confirm('确定要注销账号吗？此操作不可恢复！')) {
             try {
@@ -47,9 +48,14 @@ const Userbox = () => {
 
     return (
         <div className={classes.userbox}>
+            {data?.data?.avatar && (
+                <div className={classes.avatar}>
+                    <img src={data.data.avatar} alt="用户头像" />
+                </div>
+            )}
             <div className={classes.name}>
-                <FontAwesomeIcon icon={faHouse} />
-                {data?.data?.username}
+                {!data?.data?.avatar && <FontAwesomeIcon icon={faHouse} />}
+                {data?.data?.nickname || data?.data?.username}
             </div>
             <div className={classes.email}>
                 {data?.data?.email}

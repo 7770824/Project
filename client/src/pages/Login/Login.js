@@ -2,26 +2,47 @@ import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useReginUserMutation, useRegistUserMutation } from '../../store/userApi';
 import classes from './Login.module.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
 
 const Login = () => {
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [regin, { error: reginErr }] = useReginUserMutation();
     const [regist, { error: registErr }] = useRegistUserMutation();
+    const [avatar, setAvatar] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
 
     const usernameInp = useRef();
     const pwdInp = useRef();
     const emailInp = useRef();
+
+    // 处理头像上传
+    const handleAvatarChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const selectedFile = e.target.files[0];
+            setAvatar(selectedFile);
+
+            // 创建预览
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+            };
+            reader.readAsDataURL(selectedFile);
+        }
+    };
 
     const submitHandler = async (e) => {
         e.preventDefault();
         const email = emailInp.current.value.trim();
         const username = isLogin ? undefined : usernameInp.current.value.trim();
         const password = pwdInp.current.value.trim();
+
         if (!isLogin && (!email || !username || !password)) {
             alert('邮箱、用户名和密码都是必填项');
             return;
         }
+
         try {
             if (isLogin) {
                 const result = await regin({ email, password }).unwrap();
@@ -30,7 +51,16 @@ const Login = () => {
                     window.location.reload();
                 }
             } else {
-                const result = await regist({ email, username, password }).unwrap();
+                // 创建FormData对象用于发送包含文件的数据
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('username', username);
+                formData.append('password', password);
+                if (avatar) {
+                    formData.append('avatar', avatar);
+                }
+
+                const result = await regist(formData).unwrap();
                 if (result.status === 'success') {
                     setIsLogin(true); // 注册成功后切换到登录页
                 }
@@ -52,10 +82,31 @@ const Login = () => {
                     <input ref={emailInp} type='email' placeholder='电子邮箱' />
                 </div>
                 {
-                    !isLogin &&
-                    <div>
-                        <input ref={usernameInp} type='text' placeholder='用户名' />
-                    </div>
+                    !isLogin && (
+                        <>
+                            <div>
+                                <input ref={usernameInp} type='text' placeholder='用户名' />
+                            </div>
+                            <div className={classes.avatarUpload}>
+                                <label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleAvatarChange}
+                                        style={{ display: 'none' }}
+                                    />
+                                    <div className={classes.uploadBtn}>
+                                        <FontAwesomeIcon icon={faUpload} /> 上传头像(选填)
+                                    </div>
+                                </label>
+                                {previewUrl && (
+                                    <div className={classes.avatarPreview}>
+                                        <img src={previewUrl} alt="Avatar preview" />
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )
                 }
                 <div>
                     <input ref={pwdInp} type='password' placeholder='密码' />
@@ -66,6 +117,8 @@ const Login = () => {
                         e => {
                             e.preventDefault();
                             setIsLogin(prev => !prev);
+                            setPreviewUrl(null); // 重置预览
+                            setAvatar(null); // 重置上传的文件
                         }
                     }>
                         {isLogin ? "没有账号？去注册" : "已有账号？去登录"}
@@ -73,7 +126,6 @@ const Login = () => {
                 </div>
             </form>
         </div>
-
     )
 }
 

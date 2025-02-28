@@ -1,7 +1,14 @@
 [
   {
     "email": "3023644716@qq.com",
-    "username": "777",
-    "password": "$2a$10$FzgGFWluIvvG0UxFKrIp/.o9zs4j4n08ZX/85.KBktQx3O/qGzC1."
+    "username": "一号",
+    "password": "$2a$10$2bXLA/yGviHV39Mxnxc6cODgTiTxrfGIIJdvVagjUZawAmn/3tmMO",
+    "avatar": "http://localhost:5000/avatars/avatar-1740662533200-586914367.jpg"
+  },
+  {
+    "email": "777@qq.com",
+    "username": "二号",
+    "password": "$2a$10$FwL9ROrwO2513t9oJ6rNZOpbKJab/vpDQAsHo/SKT64InZxhTEnnm",
+    "avatar": "http://localhost:5000/avatars/avatar-1740662612898-956515577.jpg"
   }
 ]
