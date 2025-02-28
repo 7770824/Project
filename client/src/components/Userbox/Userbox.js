@@ -61,6 +61,7 @@ const Userbox = () => {
                 {data?.data?.email}
             </div>
             <div className={classes.goLogin}>
+                <button onClick={() => navigate('/profile')}>编辑资料</button>
                 <button onClick={logoutHandler}>退出登录</button>
                 <button onClick={deleteAccountHandler}>注销账号</button>
             </div>

@@ -1,0 +1,242 @@
+.profile {
+    width: 100%;
+    max-width: 600px;
+    margin: 100px auto 30px;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.header h2 {
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.backButton {
+    position: absolute;
+    left: 0;
+    background: none;
+    border: none;
+    color: #1890ff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 0;
+    font-size: 16px;
+}
+
+.backButton:hover {
+    color: #40a9ff;
+}
+
+.successMessage {
+    margin-bottom: 20px;
+    padding: 12px;
+    background-color: #f6ffed;
+    border: 1px solid #b7eb8f;
+    border-radius: 4px;
+    color: #52c41a;
+    text-align: center;
+}
+
+.avatarSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.currentAvatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #1890ff;
+    margin-bottom: 20px;
+}
+
+.currentAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.noAvatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    color: #999;
+}
+
+.avatarUpload {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.uploadBtn {
+    cursor: pointer;
+    padding: 10px 15px;
+    background-color: #f2f2f2;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.uploadBtn:hover {
+    background-color: #e6f7ff;
+    border-color: #1890ff;
+}
+
+.dropZone {
+    width: 100%;
+    min-height: 100px;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    color: #666;
+}
+
+.dropZone p {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.dragOver {
+    border-color: #1890ff;
+    background-color: rgba(24, 144, 255, 0.05);
+    color: #1890ff;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+}
+
+.formGroup label,
+.emailField label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.formGroup input,
+.emailField input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.formGroup input:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.3);
+}
+
+.emailField {
+    margin-bottom: 30px;
+}
+
+.emailField input {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.emailField small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #999;
+}
+
+.saveButton {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.saveButton:hover {
+    background-color: #40a9ff;
+}
+
+.saveButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.loading {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #333;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .profile {
+        margin-top: 80px;
+        padding: 20px;
+        width: 90%;
+    }
+
+    .currentAvatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .dropZone {
+        min-height: 80px;
+    }
+
+    .formGroup input,
+    .emailField input,
+    .saveButton {
+        padding: 10px;
+        font-size: 14px;
+    }
+}

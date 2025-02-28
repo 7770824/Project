@@ -448,6 +448,76 @@ app.get('/api/user/info', authCheck, (req, res) => {
     });
 });
 
+// 更新用户个人资料
+app.post('/api/user/update', authCheck, upload.single('avatar'), (req, res) => {
+    try {
+        const { username } = req.body;
+        const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+        const userIndex = users.findIndex(user => user.email === req.user.email);
+
+        if (userIndex === -1) {
+            // 用户不存在
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
+            return res.status(404).json({
+                status: 'fail',
+                message: '用户不存在'
+            });
+        }
+
+        const user = users[userIndex];
+
+        // 更新用户名
+        if (username) user.username = username;
+
+        // 处理头像更新
+        if (req.file) {
+            // 如果用户已有头像，删除旧头像
+            if (user.avatar) {
+                try {
+                    const oldAvatarFilename = user.avatar.split('/').pop();
+                    const oldAvatarPath = path.join(avatarUploadDir, oldAvatarFilename);
+
+                    if (fs.existsSync(oldAvatarPath)) {
+                        fs.unlinkSync(oldAvatarPath);
+                    }
+                } catch (error) {
+                    console.error('删除旧头像失败:', error);
+                    // 继续执行，即使删除旧头像失败
+                }
+            }
+
+            // 设置新头像路径
+            user.avatar = `http://localhost:5000/avatars/${path.basename(req.file.path)}`;
+        }
+
+        // 保存更新后的用户数据
+        users[userIndex] = user;
+        writeUsers(users);
+
+        res.json({
+            status: 'success',
+            message: '个人资料已更新',
+            data: {
+                email: user.email,
+                username: user.username,
+                avatar: user.avatar
+            }
+        });
+    } catch (error) {
+        // 如果上传了文件但处理过程中出错，删除文件
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+        console.error('更新个人资料出错:', error);
+        res.status(500).json({
+            status: 'fail',
+            message: '服务器错误'
+        });
+    }
+});
+
 app.post('/api/user/logout', (req, res) => {
     res.clearCookie('token');
     res.json({ status: 'success', message: '已登出' })

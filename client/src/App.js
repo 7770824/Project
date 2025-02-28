@@ -13,6 +13,7 @@ const Home = React.lazy(() => import("./pages/Home/Home"));
 const Products = React.lazy(() => import("./pages/Products/Products"));
 const Product = React.lazy(() => import("./pages/Product/Product"));
 const Login = React.lazy(() => import("./pages/Login/Login"));
+const Profile = React.lazy(() => import("./pages/Profile/Profile"));
 
 // 加载状态组件
 const LoadingSpinner = () => (
@@ -62,6 +63,14 @@ const router = createBrowserRouter([
         element: (
             <Suspense fallback={<LoadingSpinner />}>
                 <Login />
+            </Suspense>
+        )
+    },
+    {
+        path: "/profile",
+        element: (
+            <Suspense fallback={<LoadingSpinner />}>
+                <Profile />
             </Suspense>
         )
     }
