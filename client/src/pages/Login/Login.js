@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useReginUserMutation, useRegistUserMutation } from '../../store/userApi';
 import classes from './Login.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faUpload, faImage } from '@fortawesome/free-solid-svg-icons';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -12,6 +12,7 @@ const Login = () => {
     const [regist, { error: registErr }] = useRegistUserMutation();
     const [avatar, setAvatar] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [isDragOver, setIsDragOver] = useState(false);
 
     const usernameInp = useRef();
     const pwdInp = useRef();
@@ -29,6 +30,50 @@ const Login = () => {
                 setPreviewUrl(reader.result);
             };
             reader.readAsDataURL(selectedFile);
+        }
+    };
+
+    // 添加拖拽处理函数
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+    };
+
+    const handleDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            const file = e.dataTransfer.files[0];
+
+            // 检查是否是图片文件
+            if (!file.type.startsWith('image/')) {
+                alert('请上传图片文件！');
+                return;
+            }
+
+            setAvatar(file);
+
+            // 创建预览
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -96,9 +141,22 @@ const Login = () => {
                                         style={{ display: 'none' }}
                                     />
                                     <div className={classes.uploadBtn}>
-                                        <FontAwesomeIcon icon={faUpload} /> 上传头像(选填)
+                                        <FontAwesomeIcon icon={faUpload} /> 点击上传头像(选填)
                                     </div>
                                 </label>
+
+                                {/* 添加拖拽上传区域 */}
+                                <div
+                                    className={`${classes.dropZone} ${isDragOver ? classes.dragOver : ''}`}
+                                    onDragOver={handleDragOver}
+                                    onDragEnter={handleDragEnter}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                >
+                                    <FontAwesomeIcon icon={faImage} size="2x" />
+                                    <p>拖拽图片到此处上传</p>
+                                </div>
+
                                 {previewUrl && (
                                     <div className={classes.avatarPreview}>
                                         <img src={previewUrl} alt="Avatar preview" />
