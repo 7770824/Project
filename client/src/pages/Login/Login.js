@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useReginUserMutation, useRegistUserMutation } from '../../store/userApi';
 import classes from './Login.module.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload, faImage } from '@fortawesome/free-solid-svg-icons';
+// 引入新组件
+import AvatarUploader from '../../components/AvatarUploader/AvatarUploader';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -11,70 +11,14 @@ const Login = () => {
     const [regin, { error: reginErr }] = useReginUserMutation();
     const [regist, { error: registErr }] = useRegistUserMutation();
     const [avatar, setAvatar] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
-    const [isDragOver, setIsDragOver] = useState(false);
 
     const usernameInp = useRef();
     const pwdInp = useRef();
     const emailInp = useRef();
 
-    // 处理头像上传
-    const handleAvatarChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const selectedFile = e.target.files[0];
-            setAvatar(selectedFile);
-
-            // 创建预览
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-            reader.readAsDataURL(selectedFile);
-        }
-    };
-
-    // 添加拖拽处理函数
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(true);
-    };
-
-    const handleDragEnter = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(true);
-    };
-
-    const handleDragLeave = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(false);
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(false);
-
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            const file = e.dataTransfer.files[0];
-
-            // 检查是否是图片文件
-            if (!file.type.startsWith('image/')) {
-                alert('请上传图片文件！');
-                return;
-            }
-
-            setAvatar(file);
-
-            // 创建预览
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
+    // 简化为一个处理函数
+    const handleAvatarChange = (file) => {
+        setAvatar(file);
     };
 
     const submitHandler = async (e) => {
@@ -132,37 +76,11 @@ const Login = () => {
                             <div>
                                 <input ref={usernameInp} type='text' placeholder='用户名' />
                             </div>
-                            <div className={classes.avatarUpload}>
-                                <label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleAvatarChange}
-                                        style={{ display: 'none' }}
-                                    />
-                                    <div className={classes.uploadBtn}>
-                                        <FontAwesomeIcon icon={faUpload} /> 点击上传头像(选填)
-                                    </div>
-                                </label>
-
-                                {/* 添加拖拽上传区域 */}
-                                <div
-                                    className={`${classes.dropZone} ${isDragOver ? classes.dragOver : ''}`}
-                                    onDragOver={handleDragOver}
-                                    onDragEnter={handleDragEnter}
-                                    onDragLeave={handleDragLeave}
-                                    onDrop={handleDrop}
-                                >
-                                    <FontAwesomeIcon icon={faImage} size="2x" />
-                                    <p>拖拽图片到此处上传</p>
-                                </div>
-
-                                {previewUrl && (
-                                    <div className={classes.avatarPreview}>
-                                        <img src={previewUrl} alt="Avatar preview" />
-                                    </div>
-                                )}
-                            </div>
+                            {/* 使用新组件替代原先的上传代码 */}
+                            <AvatarUploader
+                                buttonText="点击上传头像(选填)"
+                                onAvatarChange={handleAvatarChange}
+                            />
                         </>
                     )
                 }
@@ -175,7 +93,6 @@ const Login = () => {
                         e => {
                             e.preventDefault();
                             setIsLogin(prev => !prev);
-                            setPreviewUrl(null); // 重置预览
                             setAvatar(null); // 重置上传的文件
                         }
                     }>
