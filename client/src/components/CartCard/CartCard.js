@@ -49,7 +49,7 @@ const CartCard = ({ item }) => {
                             {item.nums}
                         </span>
                         {showChange &&
-                            <button onClick={() => addHandler}>
+                            <button onClick={() => addHandler()}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </button>
                         }

@@ -284,9 +284,66 @@ app.get('/api/cart/read', authCheck, (req, res) => {
     res.json(userCart);
 })
 
+// 在app.get('/api/data')路由中添加过滤功能
+
 app.get('/api/data', (req, res) => {
-    res.json(data);
+    // 获取分页参数
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    
+    // 获取过滤条件
+    const categories = req.query.categories ? req.query.categories.split(',') : [];
+    const symbol = req.query.symbol || '';
+    const kinds = req.query.kinds || '';
+    const priceRange = parseFloat(req.query.priceRange) || 2000;
+    const sortBy = req.query.sortBy || 'normal';
+    
+    // 应用过滤条件
+    let filteredData = data.filter(item => {
+        // 按分类过滤
+        if (categories.length > 0 && 
+            !categories.some(cat => item.name.includes(cat) || item.kinds.includes(cat))) {
+            return false;
+        }
+        
+        // 按品牌过滤
+        if (symbol && item.Symbol !== symbol) {
+            return false;
+        }      
+        // 按种类过滤
+        if (kinds && item.kinds !== kinds) {
+            return false;
+        }
+        
+        // 按价格过滤
+        if (item.newprice > priceRange) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // 应用排序
+    if (sortBy === 'minfirst') {
+        filteredData.sort((a, b) => a.newprice - b.newprice);
+    }
+    
+    // 计算分页
+    const totalItems = filteredData.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    
+    // 准备返回结果
+    const results = {};
+    results.totalItems = totalItems;
+    results.page = page;
+    results.limit = limit;
+    results.hasMore = endIndex < totalItems;
+    results.items = filteredData.slice(startIndex, endIndex);
+    
+    res.json(results);
 });
+
 app.get('/api/data/product/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const product = data.find(item => item.id === id);
