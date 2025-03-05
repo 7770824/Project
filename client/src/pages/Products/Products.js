@@ -31,6 +31,7 @@ const Products = () => {
                                             type='checkbox'
                                             id={category}
                                             value={category}
+                                            checked={filters.categories && filters.categories.includes(category)}
                                             onChange={(e) => handleFilterChange('categories', e.target.value, e.target.checked)}
                                         />
                                         <label htmlFor={category}>{category}</label>

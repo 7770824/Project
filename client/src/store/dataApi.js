@@ -10,27 +10,29 @@ const dataApi = createApi({
         return {
             getData: build.query({
                 query: (params = {}) => {
-                    const { 
-                        page = 1, 
+                    const {
+                        page = 1,
                         limit = 12,
                         categories,
                         symbol,
                         kinds,
                         priceRange,
-                        sortBy
+                        sortBy,
+                        type
                     } = params;
-                    
+
                     // 构建查询字符串
                     const queryParams = new URLSearchParams();
                     queryParams.append('page', page);
                     queryParams.append('limit', limit);
-                    
+
                     if (categories) queryParams.append('categories', categories);
                     if (symbol) queryParams.append('symbol', symbol);
                     if (kinds) queryParams.append('kinds', kinds);
                     if (priceRange) queryParams.append('priceRange', priceRange);
                     if (sortBy) queryParams.append('sortBy', sortBy);
-                    
+                    if (type) queryParams.append('type', type);
+
                     return `/data?${queryParams.toString()}`;
                 },
                 // 缓存键策略 - 根据过滤条件分开缓存
@@ -48,7 +50,10 @@ const dataApi = createApi({
                     // 否则合并数据
                     return {
                         ...newItems,
-                        items: [...(currentCache?.items || []), ...newItems.items]
+                        items: [
+                            ...(currentCache?.items || []),
+                            ...newItems.items
+                        ]
                     };
                 },
                 // 仅当参数变化时才触发新请求

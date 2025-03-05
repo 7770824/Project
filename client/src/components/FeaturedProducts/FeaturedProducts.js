@@ -8,13 +8,11 @@ import { useGetDataQuery } from '../../store/dataApi';
 
 const FeaturedProducts = (props) => {
     // 请求第一页所有数据，显示时会进行过滤
-    const { data, isLoading, error } = useGetDataQuery({ page: 1, limit: 20 });
-
-    // 筛选符合类型的商品
-    const filteredData = useMemo(() => {
-        if (!data?.items) return [];
-        return data.items.filter(item => item.Symbol === props.type).slice(0, 5);
-    }, [data, props.type]);
+    const { data, isLoading, error } = useGetDataQuery({
+        page: 1,
+        limit: 5,
+        type: props.type
+    });
 
     if (isLoading) return <div>加载中...</div>;
     if (error) return <div>错误: {error.message}</div>;
@@ -31,7 +29,7 @@ const FeaturedProducts = (props) => {
                 </div>
             </div>
             <div className={classes.products}>
-                {filteredData.map(item => (
+                {data.map(item => (
                     <Card item={item} key={item.id} />
                 ))}
             </div>
