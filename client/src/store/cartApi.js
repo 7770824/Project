@@ -1,10 +1,12 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createQueuedFetchBaseQuery } from '../utils/queuedFetchBase';
+
 const cartApi = createApi({
     reducerPath: 'cartApi',  //名字
-    baseQuery: fetchBaseQuery({
+    baseQuery: createQueuedFetchBaseQuery({
         baseUrl: "http://localhost:5000/api/cart/",
         credentials: 'include'
-    }),
+    }, 2), // 最多2个并发请求
     tagTypes: ['Cart'],  // 添加标签类型
     endpoints(build) {  //定义各种方法
         //build.query用于查询，build.mutation用于修改

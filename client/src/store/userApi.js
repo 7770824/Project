@@ -1,11 +1,12 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { createQueuedFetchBaseQuery } from '../utils/queuedFetchBase';
 
 const userApi = createApi({
     reducerPath: 'userApi',
-    baseQuery: fetchBaseQuery({
+    baseQuery: createQueuedFetchBaseQuery({
         baseUrl: "http://localhost:5000/api/user/",
         credentials: 'include'
-    }),
+    }, 2), // 最多2个并发请求
     tagTypes: ['User', 'Cart'],
     endpoints(build) {
         return {

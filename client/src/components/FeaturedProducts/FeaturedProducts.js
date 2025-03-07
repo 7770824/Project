@@ -29,7 +29,7 @@ const FeaturedProducts = (props) => {
                 </div>
             </div>
             <div className={classes.products}>
-                {data.map(item => (
+                {data.items.map(item => (
                     <Card item={item} key={item.id} />
                 ))}
             </div>
