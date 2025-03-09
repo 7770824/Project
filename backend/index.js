@@ -6,6 +6,12 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const SECRET_KEY = 'wsyyyue777';
+// 添加刷新令牌密钥，最好与访问令牌密钥不同
+const REFRESH_SECRET_KEY = 'wsyyyue777_refresh';
+
+// 设置令牌过期时间
+const ACCESS_TOKEN_EXPIRES = '15m'; // 访问令牌短期有效
+const REFRESH_TOKEN_EXPIRES = '7d'; // 刷新令牌长期有效
 
 const path = require('path')
 const fs = require('fs');
@@ -51,7 +57,16 @@ const authCheck = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        // token过期或无效时会抛出异常
+        // 检查是否是令牌过期错误
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                status: 'fail',
+                message: 'token已过期',
+                code: 'TOKEN_EXPIRED' // 添加特殊错误码，前端用于识别是否是过期错误
+            });
+        }
+
+        // 其他错误（无效令牌等）
         res.clearCookie('token');
         return res.status(401).json({
             status: 'fail',
@@ -372,19 +387,34 @@ app.post('/api/user/regin', (req, res) => {
             message: '密码错误'
         });
     }
+
+    // 签发访问令牌
     const token = jwt.sign(
         { email: user.email },
         SECRET_KEY,
-        { expiresIn: '24h' }
+        { expiresIn: ACCESS_TOKEN_EXPIRES }
     );
 
-    //使用cookie存储token
+    // 签发刷新令牌
+    const refreshToken = jwt.sign(
+        { email: user.email },
+        REFRESH_SECRET_KEY,
+        { expiresIn: REFRESH_TOKEN_EXPIRES }
+    );
+
+    // 设置访问令牌cookie
     res.cookie('token', token, {
-        httpOnly: true, //防止xss攻击
-        // secure: process.env.NODE_ENV === 'pruduction', //生产环境下只允许https
-        // sameSite: 'strict',  //防止csrf攻击
-        maxAge: 24 * 60 * 60 * 1000  //24h过期
-    })
+        httpOnly: true,
+        maxAge: 15 * 60 * 1000 // 15分钟
+    });
+
+    // 设置刷新令牌cookie
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        // secure: process.env.NODE_ENV === 'production',
+        // sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
+    });
 
     res.json({
         status: 'success',
@@ -580,6 +610,7 @@ app.post('/api/user/update', authCheck, upload.single('avatar'), (req, res) => {
 
 app.post('/api/user/logout', (req, res) => {
     res.clearCookie('token');
+    res.clearCookie('refreshToken');
     res.json({ status: 'success', message: '已登出' })
 })
 
@@ -623,6 +654,7 @@ app.delete('/api/user/delete', authCheck, (req, res) => {
         writeUsers(users);
 
         res.clearCookie('token');
+        res.clearCookie('refreshToken');
         res.json({
             status: 'success',
             message: '账号已注销'
@@ -632,6 +664,62 @@ app.delete('/api/user/delete', authCheck, (req, res) => {
         res.status(500).json({
             status: 'fail',
             message: '服务器错误'
+        });
+    }
+});
+
+// 添加刷新令牌接口
+app.post('/api/user/refresh', (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+        return res.status(401).json({
+            status: 'fail',
+            message: '刷新令牌不存在'
+        });
+    }
+
+    try {
+        // 验证刷新令牌
+        const decoded = jwt.verify(refreshToken, REFRESH_SECRET_KEY);
+
+        // 检查用户是否仍然存在
+        const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+        const user = users.find(user => user.email === decoded.email);
+
+        if (!user) {
+            res.clearCookie('token');
+            res.clearCookie('refreshToken');
+            return res.status(401).json({
+                status: 'fail',
+                message: '用户不存在'
+            });
+        }
+
+        // 签发新的访问令牌
+        const newToken = jwt.sign(
+            { email: user.email },
+            SECRET_KEY,
+            { expiresIn: ACCESS_TOKEN_EXPIRES }
+        );
+
+        // 设置新的访问令牌cookie
+        res.cookie('token', newToken, {
+            httpOnly: true,
+            maxAge: 15 * 60 * 1000 // 15分钟
+        });
+
+        res.json({
+            status: 'success',
+            message: '令牌已刷新'
+        });
+    } catch (error) {
+        res.clearCookie('token');
+        res.clearCookie('refreshToken');
+
+        return res.status(401).json({
+            status: 'fail',
+            message: '刷新令牌无效或已过期，请重新登录'
         });
     }
 });
