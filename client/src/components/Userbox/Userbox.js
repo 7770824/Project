@@ -24,7 +24,6 @@ const Userbox = () => {
         if (window.confirm('确定要注销账号吗？此操作不可恢复！')) {
             try {
                 await delUser().unwrap();
-                localStorage.removeItem('token');
                 alert('账号已成功注销');
                 window.location.reload();
             } catch (error) {
