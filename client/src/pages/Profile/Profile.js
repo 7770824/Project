@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUpdateUserMutation } from '../../store/userApi';
 import classes from './Profile.module.css';
@@ -6,36 +6,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSave } from '@fortawesome/free-solid-svg-icons';
 import AvatarUploader from '../../components/AvatarUploader/AvatarUploader';
 import { useAuth } from '../../hooks/useAuth';
+import { useMessage } from '../../hooks/useMessage';
+import { useFileUpload } from '../../hooks/useFileUpload';
 
 const Profile = () => {
     const navigate = useNavigate();
     const { user, isLoading } = useAuth(); // 使用auth钩子获取用户信息
     const [updateProfile, { isLoading: isUpdating }] = useUpdateUserMutation();
 
-    // 使用普通state替代useFileUpload
-    const [avatar, setAvatar] = useState(null);
+    // 使用文件上传钩子管理头像
+    const { file: avatar, handleFileChange } = useFileUpload(user?.avatar);
 
-    // 消息状态管理
-    const [message, setMessage] = useState('');
-    const [messageType, setMessageType] = useState('');
-
-    // 消息显示函数
-    const showMessage = useCallback((text, type = 'info') => {
-        setMessage(text);
-        setMessageType(type);
-
-        // 自动清除消息
-        const timer = setTimeout(() => {
-            setMessage('');
-            setMessageType('');
-        }, 3000);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    const showSuccess = useCallback((text) => {
-        showMessage(text, 'success');
-    }, [showMessage]);
+    // 使用消息钩子管理提示信息
+    const { message, showSuccess } = useMessage(3000);
 
     const usernameInp = useRef();
 
@@ -73,14 +56,14 @@ const Profile = () => {
             </div>
 
             {message && (
-                <div className={`${classes.successMessage} ${classes[messageType]}`}>{message}</div>
+                <div className={classes.successMessage}>{message}</div>
             )}
 
             <form onSubmit={submitHandler}>
                 <AvatarUploader
                     initialAvatar={user?.avatar}
                     buttonText="选择新头像"
-                    onAvatarChange={setAvatar}
+                    onAvatarChange={handleFileChange}
                     previewSize="large"
                 />
 

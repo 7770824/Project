@@ -1,62 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import classes from './Products.module.css'
 import ProductsList from '../../components/ProductsList/ProductsList';
 import { useSearchParams } from 'react-router-dom';
 import Search from '../../components/Search/Search';
+import { useFilters } from '../../hooks/useFilters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 const Products = () => {
     const [searchParams] = useSearchParams();
+    const { filters, handleFilterChange } = useFilters(searchParams);
     const [showFilter, setShowFilter] = useState(false);
-    const [filters, setFilters] = useState({
-        categories: [],
-        kinds: '',
-        priceRange: 2000,
-        sortBy: 'normal',
-        Symbol: ''
-    });
-
-    useEffect(() => {
-        const type = searchParams.get('type');
-        const kinds = searchParams.get('kinds');
-        const title = searchParams.get('title');
-
-        if (!type && !kinds && !title) return;
-
-        setFilters(prev => ({
-            ...prev,
-            kinds: kinds || '',
-            Symbol: type || '',
-            categories: title ? title : []
-        }));
-
-        return () => {
-            setFilters({
-                categories: [],
-                kinds: '',
-                priceRange: 2000,
-                sortBy: 'normal',
-                Symbol: ''
-            });
-        };
-    }, [searchParams]);
-
-    const handleFilterChange = (filterType, value, checked) => {
-        setFilters(prev => {
-            if (filterType === 'categories') {
-                return {
-                    ...prev,
-                    [filterType]: checked
-                        ? [...prev[filterType], value]
-                        : prev[filterType].filter(item => item !== value)
-                };
-            }
-            return {
-                ...prev,
-                [filterType]: value
-            };
-        });
-    };
 
     return (
         <div className={classes.products}>

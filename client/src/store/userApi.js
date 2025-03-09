@@ -16,7 +16,7 @@ const userApi = createApi({
                     method: 'POST',
                     body: data
                 }),
-
+                invalidatesTags: ['User', 'Cart']
             }),
             registUser: build.mutation({
                 query: (formData) => ({
@@ -27,7 +27,6 @@ const userApi = createApi({
                     // 不序列化FormData
                     formData: true,
                 }),
-                invalidatesTags: ['User', 'Cart']
             }),
             getUserInfo: build.query({
                 query: () => 'info',
@@ -53,8 +52,7 @@ const userApi = createApi({
                 query: () => ({
                     url: 'delete',
                     method: 'DELETE'
-                }),
-                invalidatesTags: ['User']
+                })
             })
         }
     }

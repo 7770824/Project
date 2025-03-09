@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import classes from './Home.module.css'
 import Slider from '../../components/Slider/Slider'
 import FeaturedProducts from '../../components/FeaturedProducts/FeaturedProducts'
