@@ -13,13 +13,6 @@ const cartApi = createApi({
         return {
             getCart: build.query({
                 query: () => 'read',//用于指定请求子路径
-                async onQueryStarted(arg, { queryFulfilled }) {
-                    try {
-                        await queryFulfilled;
-                    } catch (err) {
-
-                    }
-                },
                 providesTags: ['Cart']
             }),
             addCart: build.mutation({
