@@ -46,13 +46,8 @@ const createRequestQueue = (maxConcurrent = 4) => {
     return { enqueue };
 };
 
-// 是否正在刷新令牌
-let isRefreshing = false;
-// 等待令牌刷新的请求队列
-let failedRequestsQueue = [];
-
 /**
- * 创建带队列控制和令牌刷新机制的fetchBaseQuery包装器
+ * 创建带队列控制的fetchBaseQuery包装器
  * @param {Object} options - fetchBaseQuery的原始选项
  * @param {number} maxConcurrent - 最大并发请求数
  * @returns {Function} 包装后的查询函数
@@ -64,67 +59,6 @@ export const createQueuedFetchBaseQuery = (options, maxConcurrent = 4) => {
     // 返回包装后的查询函数
     return async (args, api, extraOptions) => {
         // 将baseQuery调用包装到队列中
-        const result = await requestQueue.enqueue(() => baseQuery(args, api, extraOptions));
-
-        // 检查是否是令牌过期错误
-        if (result.error && result.error.status === 401) {
-            const originalRequest = { args, api, extraOptions };
-
-            // 特殊处理令牌过期的情况
-            if (result.error.data?.code === 'TOKEN_EXPIRED' && !args.url.includes('refresh')) {
-                if (!isRefreshing) {
-                    isRefreshing = true;
-
-                    try {
-                        // 尝试刷新令牌
-                        const refreshResult = await baseQuery(
-                            { url: 'user/refresh', method: 'POST' },
-                            api,
-                            extraOptions
-                        );
-
-                        if (refreshResult.data?.status === 'success') {
-                            // 令牌刷新成功，重试所有失败的请求
-                            failedRequestsQueue.forEach(({ resolve }) =>
-                                resolve()
-                            );
-                            failedRequestsQueue = [];
-
-                            // 重试当前请求
-                            return await baseQuery(args, api, extraOptions);
-                        } else {
-                            // 令牌刷新失败，拒绝所有失败的请求
-                            failedRequestsQueue.forEach(({ reject }) =>
-                                reject(new Error('令牌刷新失败'))
-                            );
-                            failedRequestsQueue = [];
-                        }
-                    } catch (error) {
-                        // 刷新过程出错
-                        failedRequestsQueue.forEach(({ reject }) =>
-                            reject(error)
-                        );
-                        failedRequestsQueue = [];
-                    } finally {
-                        isRefreshing = false;
-                    }
-                } else {
-                    // 已有刷新请求正在进行中，将当前请求加入队列
-                    return new Promise((resolve, reject) => {
-                        failedRequestsQueue.push({
-                            resolve: () => {
-                                // 令牌刷新成功后重试
-                                requestQueue.enqueue(() => baseQuery(args, api, extraOptions))
-                                    .then(resolve)
-                                    .catch(reject);
-                            },
-                            reject
-                        });
-                    });
-                }
-            }
-        }
-
-        return result;
-    };
+        return requestQueue.enqueue(() => baseQuery(args, api, extraOptions));
+    }
 };
