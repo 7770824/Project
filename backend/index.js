@@ -95,12 +95,16 @@ const authCheck = (req, res, next) => {
             }
 
             // 刷新令牌有效，生成新的访问令牌
-            const { accessToken: newAccessToken } = generateTokens(decoded.email);
+            const { accessToken: newAccessToken, refreshToken: newRefreshToken } = generateTokens(decoded.email);
 
-            // 设置新的访问令牌
+            // 设置新的访问令牌和刷新令牌
             res.cookie('accessToken', newAccessToken, {
                 httpOnly: true,
-                maxAge: 15 * 60 * 1000 // 15分钟
+                maxAge: 15 * 60 * 1000 // 15min
+            });
+            res.cookie('refreshToken', newRefreshToken, {
+                httpOnly: true,
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7day
             });
 
             req.user = decoded;
@@ -385,6 +389,7 @@ app.get('/api/data', (req, res) => {
     const priceRange = parseFloat(req.query.priceRange) || 2000;
     const sortBy = req.query.sortBy || 'normal';
     const type = req.query.type || '';
+    const searchText = req.query.searchText || '';
 
     // 应用过滤条件
     let filteredData = data.filter(item => {
@@ -404,9 +409,11 @@ app.get('/api/data', (req, res) => {
         if (kinds && item.kinds !== kinds) {
             return false;
         }
-
         // 按价格过滤
         if (item.newprice > priceRange) {
+            return false;
+        }
+        if (searchText && !item.name.toLowerCase().includes(searchText.toLowerCase())) {
             return false;
         }
 

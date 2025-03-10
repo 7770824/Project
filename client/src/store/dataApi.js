@@ -19,7 +19,8 @@ const dataApi = createApi({
                         kinds,
                         priceRange,
                         sortBy,
-                        type
+                        type,
+                        searchText
                     } = params;
 
                     // 构建查询字符串
@@ -33,6 +34,7 @@ const dataApi = createApi({
                     if (priceRange) queryParams.append('priceRange', priceRange);
                     if (sortBy) queryParams.append('sortBy', sortBy);
                     if (type) queryParams.append('type', type);
+                    if (searchText && searchText.length > 0) queryParams.append('searchText', searchText);
 
                     return `/data?${queryParams.toString()}`;
                 },

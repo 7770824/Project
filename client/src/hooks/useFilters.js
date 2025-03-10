@@ -6,30 +6,34 @@ export const useFilters = (searchParams) => {
         kinds: '',
         priceRange: 2000,
         sortBy: 'normal',
-        Symbol: ''
+        Symbol: '',
+        searchText: ''
     });
 
     useEffect(() => {
         const type = searchParams.get('type');
         const kinds = searchParams.get('kinds');
         const title = searchParams.get('title');
+        const searchText = searchParams.get('searchText');
 
-        if (!type && !kinds && !title) return;
+        if (!type && !kinds && !title && !searchText) return;
 
         setFilters(prev => ({
             ...prev,
             kinds: kinds || '',
             Symbol: type || '',
-            categories: title ? title : []
+            categories: title ? title : [],
+            searchText: search || ''
         }));
-
+        console.log(filters);
         return () => {
             setFilters({
                 categories: [],
                 kinds: '',
                 priceRange: 2000,
                 sortBy: 'normal',
-                Symbol: ''
+                Symbol: '',
+                searchText: ''
             });
         };
     }, [searchParams]);

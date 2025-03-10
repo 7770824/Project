@@ -15,12 +15,9 @@ const debounce = (fn, delay) => {
 };
 
 const Search = ({ onSearch }) => {
-    // 直接使用 debounce，不需要 useCallback
     const searchHandler = debounce((e) => {
-        onSearch(prev => ({
-            ...prev,
-            categories: e.target.value
-        }));
+        const searchText = e.target.value;
+        onSearch('searchText', searchText);
     }, 500);
 
     return (
