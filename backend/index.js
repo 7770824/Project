@@ -1,22 +1,24 @@
 const express = require("express")
-
 const cors = require('cors');
 
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const SECRET_KEY = 'wsyyyue777';
+
+// 分别设置两种token的密钥和过期时间
+const ACCESS_TOKEN_SECRET = 'wsyyyue777';
+const REFRESH_TOKEN_SECRET = 'wsyrefreshyue999';
+const ACCESS_TOKEN_EXPIRY = '15m'; // 15分钟
+const REFRESH_TOKEN_EXPIRY = '7d'; // 7天
 
 const path = require('path')
 const fs = require('fs');
-// const { json } = require("stream/consumers");
-
-// 在现有的导入语句后添加multer
 const multer = require('multer');
 
 const app = express()
 const cartFilePath = path.join(__dirname, 'cart.json');
 const usersFilePath = path.join(__dirname, 'users.json');
+const tokenFilePath = path.join(__dirname, 'refreshTokens.json');
 
 const writeCart = (cart) => {
     fs.writeFileSync(cartFilePath, JSON.stringify(cart, null, 2));
@@ -24,48 +26,126 @@ const writeCart = (cart) => {
 const writeUsers = (users) => {
     fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
 }
+const writeTokens = (tokens) => {
+    fs.writeFileSync(tokenFilePath, JSON.stringify(tokens, null, 2));
+}
 
 app.use(cookieParser());
+app.use(express.json());
+
+// 生成token的函数
+const generateTokens = (userEmail) => {
+    // 生成访问令牌
+    const accessToken = jwt.sign(
+        { email: userEmail },
+        ACCESS_TOKEN_SECRET,
+        { expiresIn: ACCESS_TOKEN_EXPIRY }
+    );
+
+    // 生成刷新令牌
+    const refreshToken = jwt.sign(
+        { email: userEmail },
+        REFRESH_TOKEN_SECRET,
+        { expiresIn: REFRESH_TOKEN_EXPIRY }
+    );
+
+    // 保存刷新令牌到文件中
+    const tokens = JSON.parse(fs.readFileSync(tokenFilePath, 'utf-8'));
+    tokens[userEmail] = {
+        token: refreshToken,
+        createdAt: new Date().toISOString()
+    };
+    writeTokens(tokens);
+
+    return { accessToken, refreshToken };
+};
 
 const authCheck = (req, res, next) => {
-    const token = req.cookies.token;  // 修改 req.cookie 为 req.cookies
-    if (!token) {
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
+    // 没有任何令牌
+    if (!accessToken && !refreshToken) {
         return res.status(401).json({
             status: 'fail',
             message: '未登录'
         });
     }
     try {
-        const decoded = jwt.verify(token, SECRET_KEY);
-        // 检查用户是否仍然存在
-        const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
-        const userExists = users.some(user => user.email === decoded.email);
-
-        if (!userExists) {
+        const decoded = jwt.verify(accessToken, ACCESS_TOKEN_SECRET);
+        req.user = decoded;
+        return next();
+    } catch (accessError) {
+        // 访问令牌无效或过期，尝试使用刷新令牌
+        if (!refreshToken) {
             return res.status(401).json({
                 status: 'fail',
-                message: '用户不存在，请重新登录'
+                message: '访问令牌已过期，请重新登录'
             });
         }
+        try {
+            const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+            const tokens = JSON.parse(fs.readFileSync(tokenFilePath, 'utf-8'));
 
-        req.user = decoded;
-        next();
-    } catch (error) {
-        // token过期或无效时会抛出异常
-        res.clearCookie('token');
-        return res.status(401).json({
-            status: 'fail',
-            message: 'token无效'
-        });
+            // 检查refreshToken是否在存储中且有效
+            if (!tokens[decoded.email] || tokens[decoded.email].token !== refreshToken) {
+                return res.status(401).json({
+                    status: 'fail',
+                    message: '刷新令牌无效，请重新登录'
+                });
+            }
+
+            // 刷新令牌有效，生成新的访问令牌
+            const { accessToken: newAccessToken } = generateTokens(decoded.email);
+
+            // 设置新的访问令牌
+            res.cookie('accessToken', newAccessToken, {
+                httpOnly: true,
+                maxAge: 15 * 60 * 1000 // 15分钟
+            });
+
+            req.user = decoded;
+            return next();
+        } catch (refreshError) {
+            // 刷新令牌也无效，清除所有cookie
+            res.clearCookie('accessToken');
+            res.clearCookie('refreshToken');
+            return res.status(401).json({
+                status: 'fail',
+                message: '身份验证失败，请重新登录'
+            });
+        }
     }
 };
 
-app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true
-}));
-// 配置静态文件服务
-app.use('/dataImg', express.static(path.join(__dirname, 'dataImg')))
+const avatarUploadDir = path.join(__dirname, 'uploads', 'avatars');
+
+// 配置multer存储
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, avatarUploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, `avatar-${uniqueSuffix}${ext}`);
+    }
+});
+
+// 文件类型过滤器
+const fileFilter = (req, file, cb) => {
+    // 只接受图片文件
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('只能上传图片文件！'), false);
+    }
+};
+
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB限制
+});
 
 const data = [
     {
@@ -240,7 +320,14 @@ const data = [
     }
 ]
 
-app.use(express.json());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
+// 配置静态文件服务
+app.use('/dataImg', express.static(path.join(__dirname, 'dataImg')))
+// 设置静态文件服务，为头像提供访问
+app.use('/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
 
 app.post('/api/cart/add', authCheck, (req, res) => {
     const { id, nums } = req.body;
@@ -372,16 +459,18 @@ app.post('/api/user/regin', (req, res) => {
             message: '密码错误'
         });
     }
-    const token = jwt.sign(
-        { email: user.email },
-        SECRET_KEY,
-        { expiresIn: '24h' }
-    );
+    // 生成双令牌
+    const { accessToken, refreshToken } = generateTokens(user.email);
 
     // 设置cookie
-    res.cookie('token', token, {
+    res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000
+        maxAge: 15 * 60 * 1000 // 15分钟
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
     });
 
     res.json({
@@ -389,40 +478,6 @@ app.post('/api/user/regin', (req, res) => {
         message: '登录成功',
     });
 })
-
-
-const avatarUploadDir = path.join(__dirname, 'uploads', 'avatars');
-
-// 配置multer存储
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, avatarUploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `avatar-${uniqueSuffix}${ext}`);
-    }
-});
-
-// 文件类型过滤器
-const fileFilter = (req, file, cb) => {
-    // 只接受图片文件
-    if (file.mimetype.startsWith('image/')) {
-        cb(null, true);
-    } else {
-        cb(new Error('只能上传图片文件！'), false);
-    }
-};
-
-const upload = multer({
-    storage,
-    fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB限制
-});
-
-// 设置静态文件服务，为头像提供访问
-app.use('/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
 
 // 修改注册接口
 app.post('/api/user/regist', upload.single('avatar'), (req, res) => {
@@ -577,7 +632,16 @@ app.post('/api/user/update', authCheck, upload.single('avatar'), (req, res) => {
 });
 
 app.post('/api/user/logout', (req, res) => {
-    res.clearCookie('token');
+    // 从存储中删除刷新令牌
+    if (req.user && req.user.email) {
+        const tokens = JSON.parse(fs.readFileSync(tokenFilePath, 'utf-8'));
+        delete tokens[req.user.email];
+        writeTokens(tokens);
+    }
+
+    // 清除cookie
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
     res.json({ status: 'success', message: '已登出' })
 })
 
@@ -620,7 +684,16 @@ app.delete('/api/user/delete', authCheck, (req, res) => {
         users.splice(userIndex, 1);
         writeUsers(users);
 
-        res.clearCookie('token');
+        // 删除用户的刷新令牌
+        const tokens = JSON.parse(fs.readFileSync(tokenFilePath, 'utf-8'));
+        if (tokens[req.user.email]) {
+            delete tokens[req.user.email];
+            writeTokens(tokens);
+        }
+
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
+
         res.json({
             status: 'success',
             message: '账号已注销'

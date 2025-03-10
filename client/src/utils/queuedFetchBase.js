@@ -56,9 +56,70 @@ export const createQueuedFetchBaseQuery = (options, maxConcurrent = 4) => {
     const baseQuery = fetchBaseQuery(options);
     const requestQueue = createRequestQueue(maxConcurrent);
 
+    // 跟踪是否正在刷新token
+    let isRefreshing = false;
+    // 等待令牌刷新的请求队列
+    let refreshSubscribers = [];
+
+    // 添加新订阅者
+    const addSubscriber = (callback) => {
+        refreshSubscribers.push(callback);
+    };
+
+    // 通知所有订阅者令牌已刷新
+    const onRefreshed = () => {
+        refreshSubscribers.forEach(callback => callback());
+        refreshSubscribers = [];
+    };
+
     // 返回包装后的查询函数
     return async (args, api, extraOptions) => {
         // 将baseQuery调用包装到队列中
-        return requestQueue.enqueue(() => baseQuery(args, api, extraOptions));
+        const result = await requestQueue.enqueue(async () => {
+            const response = await baseQuery(args, api, extraOptions);
+
+            // 如果是401错误且不是刷新令牌的请求
+            if (response.error && response.error.status === 401 && !args.url.includes('/refresh')) {
+                // 避免多个请求同时触发刷新
+                if (!isRefreshing) {
+                    isRefreshing = true;
+
+                    try {
+                        // 尝试刷新令牌
+                        const refreshResult = await baseQuery({
+                            url: '/api/user/refresh',
+                            method: 'POST',
+                        }, api, extraOptions);
+
+                        isRefreshing = false;
+
+                        if (!refreshResult.error) {
+                            // 令牌刷新成功，通知所有等待的请求
+                            onRefreshed();
+
+                            // 重试原始请求
+                            return await baseQuery(args, api, extraOptions);
+                        }
+
+                        // 刷新失败，可能需要重定向到登录页面
+                        // 这里由前端的各自组件处理
+                    } catch (refreshError) {
+                        isRefreshing = false;
+                        throw refreshError;
+                    }
+                } else {
+                    // 如果已经在刷新，将当前请求加入等待队列
+                    return new Promise((resolve) => {
+                        addSubscriber(() => {
+                            resolve(baseQuery(args, api, extraOptions));
+                        });
+                    });
+                }
+            }
+
+            return response;
+        });
+
+        return result;
     }
 };
